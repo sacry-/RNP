@@ -1,11 +1,14 @@
 package ServicePackage;
 
-import java.io.File;
-import java.io.PrintWriter;
-import java.util.*;
-
 import DataTypePackage.Account;
 import DataTypePackage.Email;
+
+import java.io.File;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by Allquantor on 20.04.14.
