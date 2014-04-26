@@ -11,7 +11,9 @@ import DataTypePackage.Email;
  */
  public class  StorageService {
     
-    private final String BASE = "storage";
+    private final String BASE = "storage/";
+    private final String ACCOUNT = "account/";
+    private final String EMAIL = "email/";
     private String storageDir;
     
     // dummy storage
@@ -27,6 +29,10 @@ import DataTypePackage.Email;
     
     public static Account loadAccount(Integer id) {
     	return accounts.get(id);	// dummy
+    }
+    
+    private static Account mkAccountMap() {
+    	
     }
     
 }

@@ -10,21 +10,19 @@ import java.util.Set;
 public class Account {
 
     private Integer uid;
-    private HashMap<String, String> eAddress;
     private String storageDir;
 
-    private Account(HashMap<String, String> eAddress, String storageDir, Integer uid) {
-        this.eAddress = eAddress;
+    private Account(String storageDir, Integer uid) {
         this.storageDir = storageDir;
         this.uid = uid;
     }
 
-    public static Account valueOf(HashMap<String, String> eAddress, String storageDir, Integer uid) {
-        return new Account(eAddress, storageDir, uid);
+    public static Account valueOf(String storageDir, Integer uid) {
+        return new Account(storageDir, uid);
     }
 
     public HashMap<String, String> eAddress() {
-        return eAddress;
+        return null;
     }
 
     public String storageDir() {
@@ -36,10 +34,10 @@ public class Account {
     }
 
     public void put(String address, String pw) {
-        eAddress.put(address, pw);
+        //eAddress.put(address, pw);
     }
 
     public void delete(String address) {
-        eAddress.remove(address);
+        //eAddress.remove(address);
     }
 }
