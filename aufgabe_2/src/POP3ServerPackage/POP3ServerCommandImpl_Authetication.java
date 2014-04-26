@@ -12,7 +12,6 @@ public class POP3ServerCommandImpl_Authetication {
 
     public String user(String command) {
         if (true) {
-            //  return success(command);
             username = command;
             return commandParser.success(command);
         } else {
@@ -35,6 +34,7 @@ public class POP3ServerCommandImpl_Authetication {
         username = null;
         password = null;
     }
+
     public boolean isOK(){
         return (username != null && password != null);
     }

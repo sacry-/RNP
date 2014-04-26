@@ -15,11 +15,11 @@ public class POP3Server {
         while(true) {
 
             //unser input
-
             String command = "";
+            //response
             String response = "";
 
-            commandParser.parseCommand(command);
+            response =  commandParser.parseCommand(command);
 
             if(commandParser.isAuthorized()){
                 commandParser.initializeTransactionState();

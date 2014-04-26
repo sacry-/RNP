@@ -1,4 +1,5 @@
 package POP3ServerPackage;
+
 import DataTypePackage.Account;
 
 import java.util.ArrayList;
@@ -8,14 +9,14 @@ import java.util.List;
 /**
  * Created by Allquantor on 20.04.14.
  */
- class POP3ServerCommandImpl_Transaction {
+class POP3ServerCommandImpl_Transaction {
 
-  public POP3ServerCommandImpl_Transaction(String usrName, String pass){
+    public POP3ServerCommandImpl_Transaction(String usrName, String pass) {
 
-  }
+    }
 
-   private boolean userLogged = false;
-   private List<Account> accountList = new ArrayList<>();
+    private boolean userLogged = false;
+    private List<Account> accountList = new ArrayList<>();
 
 
 
@@ -62,34 +63,42 @@ import java.util.List;
     S: +OK dewey POP3 server signing off
     */
 
-     String quit() {
+    String quit() {
         return null;
     }
 
 
-     void quit(String secondPart) {
+    String quit(String secondPart) {
+        return null;
     }
 
-     void stat(String secondPart) {
+    String stat(String secondPart) {
+        return null;
     }
 
 
-     void noop(String secondPart) {
+    String noop(String secondPart) {
+        return null;
 
     }
 
-     void retr(String secondPart) {
+    String retr(String secondPart) {
+        return null;
     }
 
-     void list(String secondPart) {
+    String list(String secondPart) {
+        return null;
     }
 
-     void rset(String secondPart) {
+    String rset(String secondPart) {
+        return null;
     }
 
-     void dele(String secondPart) {
+    String dele(String secondPart) {
+        return null;
     }
 
-     void uidl(String secondPart) {
+    String uidl(String secondPart) {
+        return null;
     }
 }

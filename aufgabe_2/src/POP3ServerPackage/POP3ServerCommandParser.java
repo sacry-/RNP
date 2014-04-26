@@ -45,81 +45,36 @@ public class POP3ServerCommandParser {
             secondPart = scanner.next();
         }
         if (firstPart == USER) {
-            commandImpl_authetication.user(secondPart);
+            return  commandImpl_authetication.user(secondPart);
 
         } else if (firstPart == PASS) {
-            commandImpl_authetication.pass(secondPart);
+            return  commandImpl_authetication.pass(secondPart);
 
         } else if (firstPart == QUIT) {
-            commandImpl_transaction.quit(secondPart);
+            return  commandImpl_transaction.quit(secondPart);
         } else if (firstPart == STAT) {
-            commandImpl_transaction.stat(secondPart);
+            return  commandImpl_transaction.stat(secondPart);
         } else if (firstPart == LIST) {
-            commandImpl_transaction.list(secondPart);
+            return  commandImpl_transaction.list(secondPart);
         } else if (firstPart == RETR) {
-            commandImpl_transaction.retr(secondPart);
+            return  commandImpl_transaction.retr(secondPart);
         } else if (firstPart == DELE) {
-            commandImpl_transaction.dele(secondPart);
+            return commandImpl_transaction.dele(secondPart);
         } else if (firstPart == NOOP) {
-            commandImpl_transaction.noop(secondPart);
+            return commandImpl_transaction.noop(secondPart);
         } else if (firstPart == RSET) {
-            commandImpl_transaction.rset(secondPart);
+            return commandImpl_transaction.rset(secondPart);
         } else if (firstPart == UIDL) {
-            commandImpl_transaction.uidl(secondPart);
+           return commandImpl_transaction.uidl(secondPart);
         } else {
             return "NOP!";
         }
-        return null;
     }
 
 
-    public String parseCommand(String command, POP3ServerCommandImpl_Authetication authetication) {
 
-        Scanner scanner = new Scanner(command);
-        String firstPart = scanner.next();
-        String secondPart = "";
 
-        if (scanner.hasNext()) {
-            secondPart = scanner.next();
-        }
-        if (firstPart == USER) {
-            authetication.user(secondPart);
 
-        } else if (firstPart == PASS) {
-            authetication.pass(secondPart);
-        } else {
-            return "NOP!";
-        }
-        return null;
-    }
-
-    public String parseCommand(String command, POP3ServerCommandImpl_Transaction transaction) {
-
-        Scanner scanner = new Scanner(command);
-        String firstPart = scanner.next();
-        String secondPart = "";
-
-        if (firstPart == QUIT) {
-            transaction.quit(secondPart);
-        } else if (firstPart == STAT) {
-            transaction.stat(secondPart);
-        } else if (firstPart == LIST) {
-            transaction.list(secondPart);
-        } else if (firstPart == RETR) {
-            transaction.retr(secondPart);
-        } else if (firstPart == DELE) {
-            transaction.dele(secondPart);
-        } else if (firstPart == NOOP) {
-            transaction.noop(secondPart);
-        } else if (firstPart == RSET) {
-            transaction.rset(secondPart);
-        } else if (firstPart == UIDL) {
-            transaction.uidl(secondPart);
-        } else {
-            return "NOP!";
-        }
-        return null;
-    }
 
 
     public boolean isAuthorized() {
