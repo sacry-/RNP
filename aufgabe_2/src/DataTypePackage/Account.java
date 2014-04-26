@@ -16,6 +16,9 @@ public class Account {
     public static Account valueOf(String pw, String email) {
         return new Account(pw, email);
     }
+    
+    public String password() { return pw; }
+    public String email() { return email; }
 
 
 }
