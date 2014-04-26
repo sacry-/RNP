@@ -8,9 +8,9 @@ import java.util.List;
 /**
  * Created by Allquantor on 20.04.14.
  */
- class POP3ServerCommandImpl {
+ class POP3ServerCommandImpl_Transaction {
 
-  public POP3ServerCommandImpl(String usrName, String pass){
+  public POP3ServerCommandImpl_Transaction(String usrName, String pass){
 
   }
 

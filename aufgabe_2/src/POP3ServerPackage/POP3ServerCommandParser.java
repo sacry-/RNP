@@ -22,45 +22,16 @@ public class POP3ServerCommandParser {
     public static final String OK = "+OK";
     public static final String ERROR = "-ERR";
 
-    private POP3ServerCommandImpl commandImpl;
+    private POP3ServerCommandImpl_Authetication commandImpl_authetication = new POP3ServerCommandImpl_Authetication();
+    private POP3ServerCommandImpl_Transaction commandImpl_transaction;
 
 
-    private String user;
-    private String passwort;
-
-    private void initializeCommandImpl() {
-        commandImpl = new POP3ServerCommandImpl(user, passwort);
-    }
-
-
-    private static String success(String message) {
+    protected String success(String message) {
         return (OK + " " + message);
     }
 
-    private static String fail(String message) {
+    protected String fail(String message) {
         return (ERROR + " " + message);
-    }
-
-    private String user(String command) {
-        if (true) {
-            //  return success(command);
-            user = command;
-        } else {
-            // return fail(command);
-        }
-        return null;
-    }
-
-    private String pass(String command) {
-        if (true) {
-            //  return success(command);
-            passwort = command;
-            initializeCommandImpl();
-
-        } else {
-            // return fail(command);
-        }
-        return null;
     }
 
 
@@ -73,28 +44,28 @@ public class POP3ServerCommandParser {
         if (scanner.hasNext()) {
             secondPart = scanner.next();
         }
-
-
         if (firstPart == USER) {
-            user(secondPart);
+            commandImpl_authetication.user(secondPart);
+
         } else if (firstPart == PASS) {
-            pass(secondPart);
+            commandImpl_authetication.pass(secondPart);
+
         } else if (firstPart == QUIT) {
-            commandImpl.quit(secondPart);
+            commandImpl_transaction.quit(secondPart);
         } else if (firstPart == STAT) {
-            commandImpl.stat(secondPart);
+            commandImpl_transaction.stat(secondPart);
         } else if (firstPart == LIST) {
-            commandImpl.list(secondPart);
+            commandImpl_transaction.list(secondPart);
         } else if (firstPart == RETR) {
-            commandImpl.retr(secondPart);
+            commandImpl_transaction.retr(secondPart);
         } else if (firstPart == DELE) {
-            commandImpl.dele(secondPart);
+            commandImpl_transaction.dele(secondPart);
         } else if (firstPart == NOOP) {
-            commandImpl.noop(secondPart);
+            commandImpl_transaction.noop(secondPart);
         } else if (firstPart == RSET) {
-            commandImpl.rset(secondPart);
+            commandImpl_transaction.rset(secondPart);
         } else if (firstPart == UIDL) {
-            commandImpl.uidl(secondPart);
+            commandImpl_transaction.uidl(secondPart);
         } else {
             return "NOP!";
         }
@@ -102,6 +73,64 @@ public class POP3ServerCommandParser {
     }
 
 
+    public String parseCommand(String command, POP3ServerCommandImpl_Authetication authetication) {
+
+        Scanner scanner = new Scanner(command);
+        String firstPart = scanner.next();
+        String secondPart = "";
+
+        if (scanner.hasNext()) {
+            secondPart = scanner.next();
+        }
+        if (firstPart == USER) {
+            authetication.user(secondPart);
+
+        } else if (firstPart == PASS) {
+            authetication.pass(secondPart);
+        } else {
+            return "NOP!";
+        }
+        return null;
+    }
+
+    public String parseCommand(String command, POP3ServerCommandImpl_Transaction transaction) {
+
+        Scanner scanner = new Scanner(command);
+        String firstPart = scanner.next();
+        String secondPart = "";
+
+        if (firstPart == QUIT) {
+            transaction.quit(secondPart);
+        } else if (firstPart == STAT) {
+            transaction.stat(secondPart);
+        } else if (firstPart == LIST) {
+            transaction.list(secondPart);
+        } else if (firstPart == RETR) {
+            transaction.retr(secondPart);
+        } else if (firstPart == DELE) {
+            transaction.dele(secondPart);
+        } else if (firstPart == NOOP) {
+            transaction.noop(secondPart);
+        } else if (firstPart == RSET) {
+            transaction.rset(secondPart);
+        } else if (firstPart == UIDL) {
+            transaction.uidl(secondPart);
+        } else {
+            return "NOP!";
+        }
+        return null;
+    }
+
+
+    public boolean isAuthorized() {
+        return commandImpl_authetication.isOK();
+    }
+
+    public void initializeTransactionState() {
+        POP3ServerCommandImpl_Transaction commandImpl_transaction = new POP3ServerCommandImpl_Transaction(commandImpl_authetication.username(),
+                commandImpl_authetication.password());
+
+    }
 }
 
 
