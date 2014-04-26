@@ -1,5 +1,8 @@
 package ServicePackage;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import DataTypePackage.Account;
 import DataTypePackage.Email;
 
@@ -7,32 +10,31 @@ import DataTypePackage.Email;
  * Created by Allquantor on 20.04.14.
  */
  public class  StorageService {
-
-
-    //PATHS
-    public static final String EMAIL_STORE_PATH = "";
-    public static final String ACCOUNTDATA_STORE_PATH = "";
     
     private String storageDir;
+    
+    // dummy storage
+    //Map<Integer, Email> emails = new HashMap();
+    private Map<Integer, Account> accounts = new HashMap();
     
     StorageService(String storageDir) {
     	this.storageDir = storageDir;
     }
     
-    public static boolean save(Email a) {
-    	return false;
-    }
-
-    public static boolean save(Account a) {
-    	return false;
+    /*public static boolean saveEmail(Email a) {
+    	
+    }*/
+    
+    public static boolean saveAccount(Account a) {
+    	accounts.put(a., a)
     }
     
-    public static Email loadEmail() {
-    	return null;
+    public static Account loadAccount(Integer id) {
+    	return null;	// dummy
     }
     
-    public static Account loadAccount() {
+    /*public static Email loadEmail(Integer uidl) {
     	return null;
-    }
+    }*/
     
 }
