@@ -22,7 +22,7 @@ public class POP3ServerCommandParser {
     public static final String OK = "+OK";
     public static final String ERROR = "-ERR";
 
-    private POP3ServerCommandImpl commandImpl = new POP3ServerCommandImpl();
+    private POP3ServerCommandImpl commandImpl = new POP3ServerCommandImpl("bla","bla");
 
 
     private static String success(String message) {
@@ -34,7 +34,7 @@ public class POP3ServerCommandParser {
     }
 
 
-    public  String parseCommand(String command) {
+    public String parseCommand(String command) {
 
         Scanner scanner = new Scanner(command);
         String firstPart = scanner.next();
@@ -44,25 +44,35 @@ public class POP3ServerCommandParser {
             secondPart = scanner.next();
         }
 
-        switch (firstPart) {
-            case USER:
-                commandImpl.user(secondPart);
-            case PASS:
-                commandImpl.pass(secondPart);
-            case QUIT:
-            case STAT:
-            case LIST:
-            case RETR:
-            case DELE:
-            case NOOP:
-            case RSET:
-            case UIDL:
-            default:
-                return null;
+
+        if (firstPart == USER) {
+            commandImpl.user(secondPart);
+        } else if (firstPart == PASS) {
+            commandImpl.pass(secondPart);
+        } else if (firstPart == QUIT) {
+            commandImpl.quit(secondPart);
+        } else if (firstPart == STAT) {
+            commandImpl.stat(secondPart);
+        } else if (firstPart == LIST) {
+            commandImpl.list(secondPart);
+        } else if (firstPart == RETR) {
+            commandImpl.retr(secondPart);
+        } else if (firstPart == DELE) {
+            commandImpl.dele(secondPart);
+        } else if (firstPart == NOOP) {
+            commandImpl.noop(secondPart);
+        } else if (firstPart == RSET) {
+            commandImpl.rset(secondPart);
+        } else if (firstPart == UIDL) {
+            commandImpl.uidl(secondPart);
+        } else {
+            return "NOP!";
         }
+        return null;
     }
 
 
-
-
 }
+
+
+

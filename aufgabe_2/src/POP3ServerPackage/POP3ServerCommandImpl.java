@@ -1,64 +1,40 @@
 package POP3ServerPackage;
+import DataTypePackage.Account;
 
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
  * Created by Allquantor on 20.04.14.
  */
-public class POP3ServerCommandImpl {
-    //TODO Javadoc Comments 4 each functions
+ class POP3ServerCommandImpl {
 
+  public POP3ServerCommandImpl(String usrName, String pass){
 
+  }
 
-    public  String stat() {
-        return null;
-    }
-
-    public  String list() {
-        return null;
-    }
-
-    public  String retr() {
-        return null;
-    }
-
-    public  String dele() {
-        return null;
-    }
-
-    public  String noop() {
-        return null;
-    }
-
-    public  String rset() {
-        return null;
-    }
-
-    public  String uidl() {
-        return null;
-    }
-
-
-
+   private boolean userLogged = false;
+   private List<Account> accountList = new ArrayList<>();
 
     //USER name
     //Arguments:
     //a string identifying a mailbox (required), which is of
     //significance ONLY to the server
-    public String user(String command) {
+     protected String user(String command) {
         if (true) {
-          //  return success(command);
+            //  return success(command);
         } else {
-           // return fail(command);
+            // return fail(command);
         }
         return null;
     }
 
-    public  String pass(String command) {
+     protected String pass(String command) {
         if (true) {
-          //  return success(command);
+            //  return success(command);
         } else {
-           // return fail(command);
+            // return fail(command);
         }
         return null;
     }
@@ -107,9 +83,34 @@ public class POP3ServerCommandImpl {
     S: +OK dewey POP3 server signing off
     */
 
-    public static String quit() {
+      String quit() {
         return null;
     }
 
 
+     void quit(String secondPart) {
+    }
+
+     void stat(String secondPart) {
+    }
+
+
+     void noop(String secondPart) {
+
+    }
+
+     void retr(String secondPart) {
+    }
+
+     void list(String secondPart) {
+    }
+
+     void rset(String secondPart) {
+    }
+
+     void dele(String secondPart) {
+    }
+
+     void uidl(String secondPart) {
+    }
 }
