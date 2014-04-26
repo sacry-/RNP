@@ -13,6 +13,12 @@ import DataTypePackage.Email;
     public static final String EMAIL_STORE_PATH = "";
     public static final String ACCOUNTDATA_STORE_PATH = "";
     
+    private String storageDir;
+    
+    StorageService(String storageDir) {
+    	this.storageDir = storageDir;
+    }
+    
     public static boolean save(Email a) {
     	return false;
     }
