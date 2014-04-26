@@ -11,6 +11,7 @@ import DataTypePackage.Email;
  */
  public class  StorageService {
     
+    private final String BASE = "storage";
     private String storageDir;
     
     // dummy storage
