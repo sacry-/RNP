@@ -12,3 +12,8 @@
 *.jar
 *.war
 *.ear
+/bin
+
+# Eclipse
+.project
+.classpath
