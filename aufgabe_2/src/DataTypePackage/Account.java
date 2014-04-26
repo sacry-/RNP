@@ -1,5 +1,6 @@
 package DataTypePackage;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -9,26 +10,20 @@ import java.util.Set;
 public class Account {
 
     private Integer uid;
-    private String pw;
-    private Set<String> eAddress;
+    private HashMap<String, String> eAddress;
     private String storageDir;
 
-    private Account(String pw, Set<String> eAddress, String storageDir, Integer uid) {
-        this.pw = pw;
+    private Account(HashMap<String, String> eAddress, String storageDir, Integer uid) {
         this.eAddress = eAddress;
         this.storageDir = storageDir;
         this.uid = uid;
     }
 
-    public static Account valueOf(String pw, Set<String> email, String storageDir, Integer uid) {
-        return new Account(pw, email, storageDir, uid);
+    public static Account valueOf(HashMap<String, String> eAddress, String storageDir, Integer uid) {
+        return new Account(eAddress, storageDir, uid);
     }
 
-    public String password() {
-        return pw;
-    }
-
-    public Set<String> eAddress() {
+    public HashMap<String, String> eAddress() {
         return eAddress;
     }
 
@@ -40,15 +35,11 @@ public class Account {
         return uid;
     }
 
-    public boolean add(String address) {
-        return eAddress.add(address);
+    public void put(String address, String pw) {
+        eAddress.put(address, pw);
     }
 
-    public boolean addAll(Set<String> address) {
-        return eAddress.addAll(address);
-    }
-
-    public boolean delete(String address) {
-        return eAddress.remove(address);
+    public void delete(String address) {
+        eAddress.remove(address);
     }
 }
