@@ -17,27 +17,6 @@ import java.util.List;
    private boolean userLogged = false;
    private List<Account> accountList = new ArrayList<>();
 
-    //USER name
-    //Arguments:
-    //a string identifying a mailbox (required), which is of
-    //significance ONLY to the server
-     protected String user(String command) {
-        if (true) {
-            //  return success(command);
-        } else {
-            // return fail(command);
-        }
-        return null;
-    }
-
-     protected String pass(String command) {
-        if (true) {
-            //  return success(command);
-        } else {
-            // return fail(command);
-        }
-        return null;
-    }
 
 
     /*
@@ -83,7 +62,7 @@ import java.util.List;
     S: +OK dewey POP3 server signing off
     */
 
-      String quit() {
+     String quit() {
         return null;
     }
 

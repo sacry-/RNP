@@ -22,7 +22,15 @@ public class POP3ServerCommandParser {
     public static final String OK = "+OK";
     public static final String ERROR = "-ERR";
 
-    private POP3ServerCommandImpl commandImpl = new POP3ServerCommandImpl("bla","bla");
+    private POP3ServerCommandImpl commandImpl;
+
+
+    private String user;
+    private String passwort;
+
+    private void initializeCommandImpl() {
+        commandImpl = new POP3ServerCommandImpl(user, passwort);
+    }
 
 
     private static String success(String message) {
@@ -31,6 +39,28 @@ public class POP3ServerCommandParser {
 
     private static String fail(String message) {
         return (ERROR + " " + message);
+    }
+
+    private String user(String command) {
+        if (true) {
+            //  return success(command);
+            user = command;
+        } else {
+            // return fail(command);
+        }
+        return null;
+    }
+
+    private String pass(String command) {
+        if (true) {
+            //  return success(command);
+            passwort = command;
+            initializeCommandImpl();
+
+        } else {
+            // return fail(command);
+        }
+        return null;
     }
 
 
@@ -46,9 +76,9 @@ public class POP3ServerCommandParser {
 
 
         if (firstPart == USER) {
-            commandImpl.user(secondPart);
+            user(secondPart);
         } else if (firstPart == PASS) {
-            commandImpl.pass(secondPart);
+            pass(secondPart);
         } else if (firstPart == QUIT) {
             commandImpl.quit(secondPart);
         } else if (firstPart == STAT) {
