@@ -7,14 +7,16 @@ public class Email {
 
     private String addressFrom;
     private String content;
+    private Integer uidl;
 
-    private Email(String addressFrom, String content) {
+    private Email(String addressFrom, String content, Integer uidl) {
         this.addressFrom = addressFrom;
         this.content = content;
+        this.uidl = uidl;
     }
 
-    public static Email valueOf(String addressFrom, String content) {
-        return new Email(addressFrom, content);
+    public static Email valueOf(String addressFrom, String content, Integer uidl) {
+        return new Email(addressFrom, content, uidl);
     }
 
 }
