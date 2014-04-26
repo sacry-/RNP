@@ -1,4 +1,4 @@
-package Aufgabe2.POP3ServerPackage;
+package POP3ServerPackage;
 
 /**
  * Created by Allquantor on 20.04.14.

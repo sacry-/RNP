@@ -1,4 +1,4 @@
-package Aufgabe2.DataTypePackage;
+package DataTypePackage;
 
 /**
  * Created by Allquantor on 20.04.14.

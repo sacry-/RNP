@@ -1,4 +1,4 @@
-package Aufgabe2.ServicePackage;
+package ServicePackage;
 
 /**
  * Created by Allquantor on 20.04.14.

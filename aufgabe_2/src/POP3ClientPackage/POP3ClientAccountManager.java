@@ -1,4 +1,4 @@
-package Aufgabe2.POP3ClientPackage;
+package POP3ClientPackage;
 
 /**
  * Created by Allquantor on 26.04.14.
