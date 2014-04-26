@@ -1,58 +1,68 @@
 package POP3ServerPackage;
 
+
+
 /**
  * Created by Allquantor on 20.04.14.
  */
 public class POP3ServerCommandImpl {
     //TODO Javadoc Comments 4 each functions
 
-    public static final String USER = "USER";
-    public static final String PASS = "PASS";
-    public static final String QUIT = "QUIT";
-    public static final String STAT = "STAT";
-    public static final String LIST = "LIST";
-    public static final String RETR = "RETR";
-    public static final String DELE = "DELE";
-    public static final String NOOP = "NOOP";
-    public static final String RSET = "RSET";
-    public static final String UIDL = "UIDL";
+
+
+    public  String stat() {
+        return null;
+    }
+
+    public  String list() {
+        return null;
+    }
+
+    public  String retr() {
+        return null;
+    }
+
+    public  String dele() {
+        return null;
+    }
+
+    public  String noop() {
+        return null;
+    }
+
+    public  String rset() {
+        return null;
+    }
+
+    public  String uidl() {
+        return null;
+    }
 
 
 
-    public static String stat() {
-        return null;
-    }
-    public static String list() {
-        return null;
-    }
-    public static String retr() {
-        return null;
-    }
-    public static String dele() {
-        return null;
-    }
-    public static String noop() {
-        return null;
-    }
-    public static String rset() {
-        return null;
-    }
-    public static String uidl() {
-        return null;
-    }
 
     //USER name
     //Arguments:
     //a string identifying a mailbox (required), which is of
     //significance ONLY to the server
-    public static String user(String command) {
+    public String user(String command) {
+        if (true) {
+          //  return success(command);
+        } else {
+           // return fail(command);
+        }
         return null;
     }
 
-    //TODO maybe a password data structure from java bib
-    public static String pass(String command) {
+    public  String pass(String command) {
+        if (true) {
+          //  return success(command);
+        } else {
+           // return fail(command);
+        }
         return null;
     }
+
 
     /*
     Restrictions:
@@ -100,11 +110,6 @@ public class POP3ServerCommandImpl {
     public static String quit() {
         return null;
     }
-
-
-
-
-
 
 
 }
