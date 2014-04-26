@@ -1,5 +1,8 @@
 package DataTypePackage;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -20,7 +23,7 @@ public class Account {
 
     //function to get message to message number
     //need to look like :
-    //func(1)
+    //func(uidl = 1)
     // Date: Mon, 18 Oct 2004 04:11:45 +0200
     // From: Someone <someone@example.com>
     // To: wiki@example.com
@@ -31,10 +34,18 @@ public class Account {
     // Dies ist eine Test-E-Mail
 
 
+    private DateFormat dataTime;
     private Integer uid;
 
     private Account(Integer uid) {
         this.uid = uid;
+    }
+
+    private void createTime() {
+        Date dNow = new Date();
+        SimpleDateFormat ft =
+                new SimpleDateFormat("E yyyy.MM.dd 'at' hh:mm:ss a zzz");
+        System.out.println("Current Date: " + ft.format(dNow));
     }
 
     public static Account valueOf(Integer uid) {
@@ -47,14 +58,6 @@ public class Account {
 
     public Integer uid() {
         return uid;
-    }
-
-    public void put(String address, String pw) {
-        //eAddress.put(address, pw);
-    }
-
-    public void delete(String address) {
-        //eAddress.remove(address);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package ServicePackage;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.util.*;
 
 import DataTypePackage.Account;
@@ -15,6 +16,51 @@ public class StorageService {
             + "/src/ServicePackage/storage/email/";
 
     public StorageService() {
+    }
+
+    public static boolean saveAccount(Account a) {
+        if (!checkIfExists(a)) {
+            new File(base + a.uid().toString()).mkdirs();
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean saveUser(Account a, String user, String pw) {
+        saveAccount(a);
+        if (!checkIfExists(a, user, pw)) {
+            new File(base + getUserPath(a, user, pw)).mkdirs();
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean saveEmail(Account a, String user, String pw, Email email) {
+        if (checkIfExists(a, user, pw)) {
+            try {
+                String path = base + getUserPath(a, user, pw) + "/" + email.getUidl() + ".txt";
+                new File(path).createNewFile();
+                PrintWriter printWriter = new PrintWriter(path, "UTF-8");
+                printWriter.println(email.content());
+                printWriter.close();
+            } catch (Exception e) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean deleteEmail(Account a, String user, String pw, Integer uidl) {
+        if (checkIfExists(a, user, pw)) {
+            try {
+                String path = base + getUserPath(a, user, pw) + "/" + uidl + ".txt";
+                return new File(path).delete();
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return false;
     }
 
     public static List<File> getEmailsForUser(Account a, String user, String pw) {
@@ -69,6 +115,10 @@ public class StorageService {
         return files;
     }
 
+    private static String getUserPath(Account a, String user, String pw) {
+        return a.uid().toString() + "/" + user + "_" + pw;
+    }
+
     private static List<File> getFilesFromDirectory(String dir) {
         return Arrays.asList(new File(base + dir).listFiles());
     }
@@ -102,15 +152,24 @@ public class StorageService {
         return l2;
     }
 
-    public static void main(String[] args) {
-        System.out.println(getEmailsForUser(Account.valueOf(1), "lol@lol.de", "pwd"));
-        System.out.println(checkIfExists(Account.valueOf(1)));
-        System.out.println(checkIfExists(Account.valueOf(1), "lol@lol.de", "pwd"));
-        System.out.println(checkIfExists(Account.valueOf(12)));
-        System.out.println(checkIfExists(Account.valueOf(1), "lol@lol.ded", "pwd"));
-        System.out.println(getAllUsersForAccount(Account.valueOf(1)));
-        System.out.println(getAllUsersForAccount(Account.valueOf(12)));
-        System.out.println(getAllAccounts());
-    }
+//    public static void main(String[] args) {
+//        System.out.println(getEmailsForUser(Account.valueOf(1), "lol@lol.de", "pwd"));
+//        System.out.println(checkIfExists(Account.valueOf(1)));
+//        System.out.println(checkIfExists(Account.valueOf(1), "lol@lol.de", "pwd"));
+//        System.out.println(checkIfExists(Account.valueOf(12)));
+//        System.out.println(checkIfExists(Account.valueOf(1), "lol@lol.ded", "pwd"));
+//        System.out.println(getAllUsersForAccount(Account.valueOf(1)));
+//        System.out.println(getAllUsersForAccount(Account.valueOf(12)));
+//        System.out.println(getAllAccounts());
+//        saveAccount(Account.valueOf(5));
+//        saveUser(Account.valueOf(5), "lol@lol.de", "pwd");
+//        saveUser(Account.valueOf(5), "lol2@lol.de", "pwd");
+//        saveEmail(Account.valueOf(5), "lol2@lol.de", "pwd",
+//                Email.valueOf("abc",
+//                        "asdjkjkasfjkajknadsjafnjkafjkdjknsad\ndslflksdkf\nlsdfkskdaslsdlsdgvlksvsodckdcnabckafujk\n",
+//                        2));
+//        deleteEmail(Account.valueOf(5), "lol2@lol.de", "pwd", 2);
+//    }
+
 
 }
