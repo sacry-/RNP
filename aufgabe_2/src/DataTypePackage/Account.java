@@ -32,23 +32,17 @@ public class Account {
 
 
     private Integer uid;
-    private String storageDir;
 
-    private Account(String storageDir, Integer uid) {
-        this.storageDir = storageDir;
+    private Account(Integer uid) {
         this.uid = uid;
     }
 
-    public static Account valueOf(String storageDir, Integer uid) {
-        return new Account(storageDir, uid);
+    public static Account valueOf(Integer uid) {
+        return new Account(uid);
     }
 
     public HashMap<String, String> eAddress() {
         return null;
-    }
-
-    public String storageDir() {
-        return storageDir;
     }
 
     public Integer uid() {
@@ -61,5 +55,10 @@ public class Account {
 
     public void delete(String address) {
         //eAddress.remove(address);
+    }
+
+    @Override
+    public String toString() {
+        return "Account(" + this.uid() + ")";
     }
 }
