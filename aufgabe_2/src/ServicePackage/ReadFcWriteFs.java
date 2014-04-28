@@ -31,7 +31,7 @@ public class ReadFcWriteFs {
 
     public String readFromClient() {
         int read;
-        byte[] byteArray = new byte[255];
+        byte[] byteArray = new byte[512];
         boolean keepGo = true;
 
         for (int i = 0; i < byteArray.length && keepGo == true; i++) {
