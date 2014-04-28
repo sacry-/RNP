@@ -1,9 +1,6 @@
 package POP3ServerPackage;
 
 import DataTypePackage.Account;
-import ServicePackage.Just;
-import ServicePackage.Maybe;
-import ServicePackage.Nothing;
 import ServicePackage.ReadFcWriteFs;
 import ServicePackage.StorageService;
 
@@ -23,7 +20,7 @@ public class Authentication {
         this.stream = stream;
     }
     
-    public Maybe<Boolean> isAuthorized() {
+    public boolean isAuthorized() {
         String line = stream.readFromClient();
         Scanner scanner = new Scanner(line);
         String cmd = scanner.next();
@@ -37,14 +34,14 @@ public class Authentication {
             }
         }
         if (cmd.equals(ServerCodes.QUIT)) {
-        	return new Nothing();
+        	return false;
         }
         scanner.close();
         stream.sendToClient(ServerCodes.fail(line));
         return isAuthorized();
     }
 
-    public Maybe<Boolean> isPwd(String user) {
+    public boolean isPwd(String user) {
         String line = stream.readFromClient();
         Scanner scanner = new Scanner(line);
         String cmd = scanner.next();
@@ -55,8 +52,11 @@ public class Authentication {
             if(StorageService.checkIfExists(account, username, password)) {
                 this.password = password;
                 stream.sendToClient(ServerCodes.success("pwd " + password));
-                return new Just<Boolean>(true);
+                return true;
             }
+        }
+        if (cmd.equals(ServerCodes.QUIT)) {
+        	return false;
         }
         scanner.close();
         stream.sendToClient(ServerCodes.fail(line));

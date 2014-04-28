@@ -3,7 +3,6 @@ package POP3ServerPackage;
 import java.net.Socket;
 import POP3ServerPackage.Transaction;
 import static POP3ServerPackage.CommandParser.parseCommand;
-import ServicePackage.Maybe;
 import ServicePackage.ReadFcWriteFs;
 
 /**
@@ -24,8 +23,8 @@ public class POP3ServerThread extends Thread {
 
     private boolean authorization() {
         authentication = new Authentication(stream);
-        Maybe<Boolean> authed = authentication.isAuthorized();
-        if(authed.isJust()) {
+        boolean authed = authentication.isAuthorized();
+        if(authed) {
         	transaction = new Transaction(authentication);  
         	return true;
         }
