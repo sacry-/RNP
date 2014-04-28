@@ -8,19 +8,20 @@ import java.net.Socket;
 public class POP3ServerThread extends Thread {
     Socket socket;
     private final int threadID;
-    CommandParser commandParser ;
+    Transaction transaction;
 
 
-
-    public POP3ServerThread(Socket socket,int threadID, CommandParser commandParser){
+    public POP3ServerThread(Socket socket,int threadID, Transaction transaction){
         this.socket = socket;
         this.threadID = threadID;
-        this.commandParser = commandParser;
+        this.transaction = transaction;
+
 
     }
 
     public void run(){
         //here the thread abfuck
+        CommandParser.parseCommand("from Socket", transaction);
     }
 
 }

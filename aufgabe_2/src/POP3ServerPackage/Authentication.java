@@ -1,47 +1,61 @@
 package POP3ServerPackage;
+
+import DataTypePackage.Account;
+import ServicePackage.ReadFcWriteFs;
+import ServicePackage.StorageService;
+
+import java.util.Scanner;
+
 /**
  * Created by Allquantor on 26.04.14.
  */
 public class Authentication {
 
-
-
-    private CommandParser commandParser = new CommandParser();
+    private Account account = Account.valueOf(1);
     private String username;
     private String password;
+    private ReadFcWriteFs stream;
 
-    public String user(String command) {
-        if (true) {
-            username = command;
-            return commandParser.success(command);
-        } else {
-             reset();
-             return commandParser.fail(command);
+    public Authentication(ReadFcWriteFs stream) {
+        this.stream = stream;
+    }
+
+    public boolean isAuthorized() {
+        String line = stream.readFromClient();
+        Scanner scanner = new Scanner(line);
+        String cmd = scanner.next();
+        if (cmd.equals(ServerCodes.USER)) {//persistenz zugriff.
+            String user = scanner.next();
+            if (StorageService.checkIfExistst(account, user)) {
+                this.username = user;
+                stream.sendToClient(ServerCodes.success("Hello " + user));
+                return isPwd(user);
+            }
         }
+        stream.sendToClient(ServerCodes.fail(line));
+        return isAuthorized();
     }
 
-    public String pass(String command) {
-        if (true) {
-            password = command;
-            return commandParser.success(command);
-        } else {
-            reset();
-             return commandParser.fail(command);
+    public boolean isPwd(String user) {
+        String pwd = stream.readFromClient();
+        Scanner scanner = new Scanner(user);
+        String cmd = scanner.next();
+        if (cmd.equals(ServerCodes.PASS)) {   //persistenz zugriff.
+            String password = scanner.next();
+            if(StorageService.checkIfExists(account, username, password)) {
+                this.password = password;
+                stream.sendToClient(ServerCodes.success("pwd " + password));
+                return true;
+            }
         }
-    }
-
-    public void reset(){
-        username = null;
-        password = null;
-    }
-
-    public boolean isOK(){
-        return (username != null && password != null);
+        stream.sendToClient(ServerCodes.fail(pwd));
+        return isPwd(user);
     }
 
     public String username() {
         return username;
     }
+
     public String password() {
         return password;
     }

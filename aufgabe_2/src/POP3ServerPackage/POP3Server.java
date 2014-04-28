@@ -6,6 +6,7 @@ import ServicePackage.ServerStateService;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
 
 import static ServicePackage.ServerStateService.*;
 
@@ -37,25 +38,17 @@ public class POP3Server {
 
 
     public void serverRun() {
-        CommandParser commandParser = new CommandParser();
 
         while (ServerStateService.isRunning() && threadAnzahl <= MAX_CONNECTIONS) {
 
             intializeStreams();
 
-            String command = stream.readFromClient();
+            Authentication authentication = new Authentication(stream);
+            authentication.isAuthorized();
+            Transaction transaction = new Transaction(authentication.username(),
+                    authentication.password());
+            new POP3ServerThread(clientSocket, threadAnzahl++, transaction).start();
 
-            //response
-            String response = commandParser.parseCommand(command);
-            stream.sendToClient(response);
-
-
-            if (commandParser.isAuthorized()) {
-                commandParser.initializeTransactionState();
-                new POP3ServerThread(clientSocket, threadAnzahl++, commandParser).start();
-                commandParser = new CommandParser();
-
-            }
         }
     }
 
