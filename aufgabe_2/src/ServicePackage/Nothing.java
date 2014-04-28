@@ -1,12 +1,14 @@
 package ServicePackage;
 
-public class Nothing implements Maybe<Object> {
-
+public class Nothing<A> implements Maybe<A> {
+	
+	public Nothing(){}
+	
 	@Override
 	public boolean isJust() {
 		return false;
 	}
-	public Object get() {
+	public A get() {
 		throw new RuntimeException("Nothing.get");
 	}
 }

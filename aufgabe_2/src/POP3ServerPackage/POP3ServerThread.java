@@ -1,6 +1,9 @@
 package POP3ServerPackage;
 
 import java.net.Socket;
+import POP3ServerPackage.Transaction;
+import static POP3ServerPackage.CommandParser.parseCommand;
+import ServicePackage.Maybe;
 import ServicePackage.ReadFcWriteFs;
 
 /**
@@ -12,24 +15,39 @@ public class POP3ServerThread extends Thread {
     Transaction transaction;
     Authentication authentication;
     ReadFcWriteFs stream;
-
-
+    
     public POP3ServerThread(Socket socket, ReadFcWriteFs stream, int threadID){
         this.socket = socket;
         this.threadID = threadID;
         this.stream = stream;
     }
 
-    private void initialize() {
+    private boolean authorization() {
         authentication = new Authentication(stream);
-        authentication.isAuthorized();
-        transaction = new Transaction(authentication);
+        Maybe<Boolean> authed = authentication.isAuthorized();
+        if(authed.isJust()) {
+        	transaction = new Transaction(authentication);  
+        	return true;
+        }
+        else {
+        	closeConnection();
+        	return false;
+        }
     }
 
-    public void run(){
-        //here the thread abfuck
-        initialize();
-        CommandParser.parseCommand("from Socket", transaction);
+    
+    private void transaction() {
+    	while(true) parseCommand("from Socket", transaction);
+    }
+
+    public void run() {
+    	if(authorization()){
+    		transaction();
+    	}
+    }
+    
+    private void closeConnection() {
+        stream.closeConnection();	// the stream also closes the socket.
     }
 
 }

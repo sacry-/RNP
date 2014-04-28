@@ -67,12 +67,12 @@ public class ReadFcWriteFs {
             }
 
         } catch (Exception e) {
-            closeConnectionAndStopThread();
+            closeConnection();
             // e.printStackTrace();
         }
     }
 
-    void closeConnectionAndStopThread() {
+    public void closeConnection() {
         try {
             inputStream.close();
             outputStream.close();
