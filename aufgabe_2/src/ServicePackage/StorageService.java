@@ -160,24 +160,24 @@ public class StorageService {
         return l2;
     }
 
-//    public static void main(String[] args) {
-//        System.out.println(getEmailsForUser(Account.valueOf(1), "lol@lol.de", "pwd"));
-//        System.out.println(checkIfExists(Account.valueOf(1)));
-//        System.out.println(checkIfExists(Account.valueOf(1), "lol@lol.de", "pwd"));
-//        System.out.println(checkIfExists(Account.valueOf(12)));
-//        System.out.println(checkIfExists(Account.valueOf(1), "lol@lol.ded", "pwd"));
-//        System.out.println(getAllUsersForAccount(Account.valueOf(1)));
-//        System.out.println(getAllUsersForAccount(Account.valueOf(12)));
-//        System.out.println(getAllAccounts());
-//        saveAccount(Account.valueOf(5));
-//        saveUser(Account.valueOf(5), "lol@lol.de", "pwd");
-//        saveUser(Account.valueOf(5), "lol2@lol.de", "pwd");
-//        saveEmail(Account.valueOf(5), "lol2@lol.de", "pwd",
-//                Email.valueOf("abc",
-//                        "asdjkjkasfjkajknadsjafnjkafjkdjknsad\ndslflksdkf\nlsdfkskdaslsdlsdgvlksvsodckdcnabckafujk\n",
-//                        2));
-//        deleteEmail(Account.valueOf(5), "lol2@lol.de", "pwd", 2);
-//    }
+    public static void main(String[] args) {
+        System.out.println(getEmailsForUser(Account.valueOf(1), "lol@lol.de", "pwd"));
+        System.out.println(checkIfExists(Account.valueOf(1)));
+        System.out.println(checkIfExists(Account.valueOf(1), "lol@lol.de", "pwd"));
+        System.out.println(checkIfExists(Account.valueOf(12)));
+        System.out.println(checkIfExists(Account.valueOf(1), "lol@lol.ded", "pwd"));
+        System.out.println(getAllUsersForAccount(Account.valueOf(1)));
+        System.out.println(getAllUsersForAccount(Account.valueOf(12)));
+        System.out.println(getAllAccounts());
+        saveAccount(Account.valueOf(5));
+        saveUser(Account.valueOf(5), "lol@lol.de", "pwd");
+        saveUser(Account.valueOf(5), "lol2@lol.de", "pwd");
+        saveEmail(Account.valueOf(5), "lol2@lol.de", "pwd",
+                Email.valueOf("abc",
+                        "asdjkjkasfjkajknadsjafnjkafjkdjknsad\ndslflksdkf\nlsdfkskdaslsdlsdgvlksvsodckdcnabckafujk\n",
+                        2));
+        deleteEmail(Account.valueOf(5), "lol2@lol.de", "pwd", 2);
+    }
 
 
 }

@@ -19,7 +19,11 @@ public class POP3Server {
     static ServerSocket welcomeSocket;
     Socket clientSocket;
 
-    public void initializeServer() {
+    public POP3Server(){
+        initializeServer();
+    }
+
+    private void initializeServer() {
         try {
             welcomeSocket = new ServerSocket(PORT);
         } catch (IOException e) {
@@ -38,18 +42,15 @@ public class POP3Server {
 
 
     public void serverRun() {
-
         while (ServerStateService.isRunning() && threadAnzahl <= MAX_CONNECTIONS) {
-
             intializeStreams();
-
-            Authentication authentication = new Authentication(stream);
-            authentication.isAuthorized();
-            Transaction transaction = new Transaction(authentication.username(),
-                    authentication.password());
-            new POP3ServerThread(clientSocket, threadAnzahl++, transaction).start();
-
+            new POP3ServerThread(clientSocket, stream, threadAnzahl++).start();
         }
+    }
+
+    public static void main(String[] args) {
+        POP3Server s = new POP3Server();
+        s.serverRun();
     }
 
 

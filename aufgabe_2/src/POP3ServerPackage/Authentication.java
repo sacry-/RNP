@@ -37,18 +37,19 @@ public class Authentication {
     }
 
     public boolean isPwd(String user) {
-        String pwd = stream.readFromClient();
-        Scanner scanner = new Scanner(user);
+        String line = stream.readFromClient();
+        Scanner scanner = new Scanner(line);
         String cmd = scanner.next();
         if (cmd.equals(ServerCodes.PASS)) {   //persistenz zugriff.
             String password = scanner.next();
+            System.out.println("Password:" + password);
             if(StorageService.checkIfExists(account, username, password)) {
                 this.password = password;
                 stream.sendToClient(ServerCodes.success("pwd " + password));
                 return true;
             }
         }
-        stream.sendToClient(ServerCodes.fail(pwd));
+        stream.sendToClient(ServerCodes.fail(line));
         return isPwd(user);
     }
 
