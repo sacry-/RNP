@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 
@@ -72,9 +73,9 @@ public class StorageService {
         return null;
     }
 
-    public static HashMap<String, String> getAllUsersForAccount(Account a) {
+    public static Map<String, String> getAllUsersForAccount(Account a) {
         if (checkIfExists(a)) {
-            HashMap<String, String> result = new HashMap<>();
+            Map<String, String> result = new HashMap<>();
             List<File> resultSet = filterDirectories(getFilesFromDirectory(a.uid().toString()));
             for (File f : resultSet) {
                 String path = f.toString();
@@ -126,14 +127,18 @@ public class StorageService {
         return Arrays.asList(new File(base + dir).listFiles());
     }
 
-    private static boolean checkIfExists(Account a) {
+    public static boolean checkIfExists(Account a) {
         return new File(base + a.uid().toString()).isDirectory();
     }
 
-    private static boolean checkIfExists(Account a, String user, String pw) {
+    public static boolean checkIfExists(Account a, String user, String pw) {
         if (checkIfExists(a))
             return new File(base + a.uid().toString() + "/" + user + "_" + pw).isDirectory();
         return false;
+    }
+
+    public static boolean checkIfExistst(Account a, String user) {
+        return getAllUsersForAccount(a).containsKey(user);
     }
 
     private static List<File> filterDirectories(List<File> l) {
