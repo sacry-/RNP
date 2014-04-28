@@ -21,6 +21,7 @@ public class CommandParser {
         if (scanner.hasNext()) {
             secondPart = scanner.next();
         }
+        scanner.close();
         if (firstPart == QUIT) {
             return transaction.quit(secondPart);
         } else if (firstPart == STAT) {

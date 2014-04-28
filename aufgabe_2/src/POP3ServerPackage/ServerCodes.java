@@ -1,8 +1,5 @@
 package POP3ServerPackage;
 
-import ServicePackage.ReadFcWriteFs;
-import com.sun.corba.se.spi.activation.Server;
-
 /**
  * Created by sacry on 28/04/14.
  */

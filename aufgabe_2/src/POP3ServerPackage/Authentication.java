@@ -26,12 +26,14 @@ public class Authentication {
         String cmd = scanner.next();
         if (cmd.equals(ServerCodes.USER)) {//persistenz zugriff.
             String user = scanner.next();
+            scanner.close();
             if (StorageService.checkIfExistst(account, user)) {
                 this.username = user;
                 stream.sendToClient(ServerCodes.success("Hello " + user));
                 return isPwd(user);
             }
         }
+        scanner.close();
         stream.sendToClient(ServerCodes.fail(line));
         return isAuthorized();
     }
@@ -42,6 +44,7 @@ public class Authentication {
         String cmd = scanner.next();
         if (cmd.equals(ServerCodes.PASS)) {   //persistenz zugriff.
             String password = scanner.next();
+            scanner.close();
             System.out.println("Password:" + password);
             if(StorageService.checkIfExists(account, username, password)) {
                 this.password = password;
@@ -49,6 +52,7 @@ public class Authentication {
                 return true;
             }
         }
+        scanner.close();
         stream.sendToClient(ServerCodes.fail(line));
         return isPwd(user);
     }
