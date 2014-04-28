@@ -24,7 +24,7 @@ public class Authentication {
         String line = stream.readFromClient();
         Scanner scanner = new Scanner(line);
         String cmd = scanner.next();
-        if (cmd.equals(ServerCodes.USER)) {//persistenz zugriff.
+        if (cmd.equals(ServerCodes.USER)) {
             String user = scanner.next();
             scanner.close();
             if (StorageService.checkIfExistst(account, user)) {
@@ -42,7 +42,7 @@ public class Authentication {
         String line = stream.readFromClient();
         Scanner scanner = new Scanner(line);
         String cmd = scanner.next();
-        if (cmd.equals(ServerCodes.PASS)) {   //persistenz zugriff.
+        if (cmd.equals(ServerCodes.PASS)) {
             String password = scanner.next();
             scanner.close();
             System.out.println("Password:" + password);

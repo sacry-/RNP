@@ -11,8 +11,8 @@ import java.util.List;
  */
 class Transaction {
 
-    public Transaction(String usrName, String pass) {
-
+    public Transaction(Authentication authentication) {
+    	
     }
 
     private boolean userLogged = false;

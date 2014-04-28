@@ -15,31 +15,31 @@ public class CommandParser {
 
     public static String parseCommand(String command, Transaction transaction) {
         Scanner scanner = new Scanner(command);
-        String firstPart = scanner.next();
-        String secondPart = "";
+        String cmd = scanner.next();
+        String arg = "";
 
         if (scanner.hasNext()) {
-            secondPart = scanner.next();
+            arg = scanner.next();
         }
         scanner.close();
-        if (firstPart == QUIT) {
-            return transaction.quit(secondPart);
-        } else if (firstPart == STAT) {
-            return transaction.stat(secondPart);
-        } else if (firstPart == LIST) {
-            return transaction.list(secondPart);
-        } else if (firstPart == RETR) {
-            return transaction.retr(secondPart);
-        } else if (firstPart == DELE) {
-            return transaction.dele(secondPart);
-        } else if (firstPart == NOOP) {
-            return transaction.noop(secondPart);
-        } else if (firstPart == RSET) {
-            return transaction.rset(secondPart);
-        } else if (firstPart == UIDL) {
-            return transaction.uidl(secondPart);
+        if (cmd == QUIT) {
+            return transaction.quit(arg);
+        } else if (cmd == STAT) {
+            return transaction.stat(arg);
+        } else if (cmd == LIST) {
+            return transaction.list(arg);
+        } else if (cmd == RETR) {
+            return transaction.retr(arg);
+        } else if (cmd == DELE) {
+            return transaction.dele(arg);
+        } else if (cmd == NOOP) {
+            return transaction.noop(arg);
+        } else if (cmd == RSET) {
+            return transaction.rset(arg);
+        } else if (cmd == UIDL) {
+            return transaction.uidl(arg);
         } else {
-            return "NOP!";
+            return ServerCodes.fail("Unknown Command " + cmd);
         }
     }
 

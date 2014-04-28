@@ -23,8 +23,7 @@ public class POP3ServerThread extends Thread {
     private void initialize() {
         authentication = new Authentication(stream);
         authentication.isAuthorized();
-        transaction = new Transaction(authentication.username(),
-                authentication.password());
+        transaction = new Transaction(authentication);
     }
 
     public void run(){
