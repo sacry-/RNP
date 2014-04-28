@@ -2,11 +2,11 @@ package POP3ServerPackage;
 /**
  * Created by Allquantor on 26.04.14.
  */
-public class POP3ServerCommandImpl_Authetication {
+public class Authentication {
 
 
 
-    private POP3ServerCommandParser commandParser = new POP3ServerCommandParser();
+    private CommandParser commandParser = new CommandParser();
     private String username;
     private String password;
 

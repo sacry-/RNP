@@ -37,7 +37,7 @@ public class POP3Server {
 
 
     public void serverRun() {
-        POP3ServerCommandParser commandParser = new POP3ServerCommandParser();
+        CommandParser commandParser = new CommandParser();
 
         while (ServerStateService.isRunning() && threadAnzahl <= MAX_CONNECTIONS) {
 
@@ -53,7 +53,7 @@ public class POP3Server {
             if (commandParser.isAuthorized()) {
                 commandParser.initializeTransactionState();
                 new POP3ServerThread(clientSocket, threadAnzahl++, commandParser).start();
-                commandParser = new POP3ServerCommandParser();
+                commandParser = new CommandParser();
 
             }
         }
