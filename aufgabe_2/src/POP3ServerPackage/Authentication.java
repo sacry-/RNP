@@ -11,12 +11,12 @@ import java.util.Scanner;
  * Created by Allquantor on 26.04.14.
  */
 public class Authentication {
-	// TODO: we need to insert locking user access here.
-	// once a authentication is authed, it has seated the user and
-	// no other may access it.
-	// we have to lock the user here.
-	// also, we have to write a unlock() methode here
-	// which is then called when the lient quits.
+    // TODO: we need to insert locking user access here.
+    // once a authentication is authed, it has seated the user and
+    // no other may access it.
+    // we have to lock the user here.
+    // also, we have to write a unlock() methode here
+    // which is then called when the lient quits.
 
     private Account account = Account.valueOf(1);
     private String username;
@@ -26,15 +26,17 @@ public class Authentication {
     public Authentication(ReadFcWriteFs stream) {
         this.stream = stream;
     }
-    
-    public Mailbox getMailbox(){
-    	return new MailboxImpl(this);
+
+    public Mailbox getMailbox() {
+        return new MailboxImpl(this);
     }
-    
+
     public boolean isAuthorized() {
         String line = stream.readFromClient();
+
         Scanner scanner = new Scanner(line);
-        String cmd = scanner.next();
+        String cmd = getNextLine(scanner);
+
         if (cmd.equals(ServerCodes.USER)) {
             String user = scanner.next();
             scanner.close();
@@ -45,7 +47,7 @@ public class Authentication {
             }
         }
         if (cmd.equals(ServerCodes.QUIT)) {
-        	return false;
+            return false;
         }
         scanner.close();
         stream.sendToClient(ServerCodes.fail(line));
@@ -55,23 +57,32 @@ public class Authentication {
     public boolean isPwd(String user) {
         String line = stream.readFromClient();
         Scanner scanner = new Scanner(line);
-        String cmd = scanner.next();
+
+        String cmd = getNextLine(new Scanner(line));
+
         if (cmd.equals(ServerCodes.PASS)) {
             String password = scanner.next();
             scanner.close();
             System.out.println("Password:" + password);
-            if(StorageService.checkIfExists(account, username, password)) {
+            if (StorageService.checkIfExists(account, username, password)) {
                 this.password = password;
                 stream.sendToClient(ServerCodes.success("pwd " + password));
                 return true;
             }
         }
         if (cmd.equals(ServerCodes.QUIT)) {
-        	return false;
+            return false;
         }
         scanner.close();
         stream.sendToClient(ServerCodes.fail(line));
         return isPwd(user);
+    }
+
+    private String getNextLine(Scanner scanner) {
+        if (scanner.hasNext()) {
+            return scanner.next();
+        }
+        return "";
     }
 
     public String username() {
