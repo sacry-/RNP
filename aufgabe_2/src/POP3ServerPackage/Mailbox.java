@@ -17,7 +17,7 @@ public interface Mailbox {
     public void unmarkAllMarked();
 
     public Map<Integer, Integer> getInboxInfo();
-    public Map<Integer,Integer> getInboxUIDLs();
+    public Map<Integer, String> getInboxUIDLs();
 
     public String getEmailValue(int EmailID);
 

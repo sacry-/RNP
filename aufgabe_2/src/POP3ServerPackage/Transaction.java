@@ -16,10 +16,10 @@ class Transaction {
         mailbox = authentication.getMailbox();
     }
 
-   
+
     //finished
     String quit() {
-    	mailbox.quitAndSaveChanges();
+        mailbox.quitAndSaveChanges();
         return ServerCodes.success("QUIT Signed off.");
     }
 
@@ -45,7 +45,10 @@ class Transaction {
 
     //finished
     String retr(int secondPart) {
-        return list(secondPart) + ServerCodes.NEWLINE + mailbox.getEmailValue(secondPart) + ServerCodes.MULTI_LINE_TERMINATOR;
+        String content = mailbox.getEmailValue(secondPart);
+        if (!content.equals(""))
+            return list(secondPart) + ServerCodes.NEWLINE + content + ServerCodes.MULTI_LINE_TERMINATOR;
+        return ServerCodes.fail("NO SUCH MESSAGE");
     }
 
     //finished
@@ -77,6 +80,7 @@ class Transaction {
     String uidl() {
         return ServerCodes.success(fromInfoMap(mailbox.getInboxUIDLs()));
     }
+
 
     private String fromInfoMap(Map<Integer, ?> mapsen) {
         String accu = "";

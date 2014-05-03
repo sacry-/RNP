@@ -5,15 +5,10 @@ import DataTypePackage.Email;
 import POP3ServerPackage.Authentication;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Allquantor on 20.04.14.
@@ -67,7 +62,7 @@ public class StorageService {
 
     private static String stripMailName(File f) {
         int lastIndex = f.toString().lastIndexOf("/");
-        return f.toString().substring(lastIndex);
+        return f.toString().substring(lastIndex + 1);
     }
 
     public static boolean saveAccount(Account a) {

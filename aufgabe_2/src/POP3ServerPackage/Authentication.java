@@ -24,6 +24,9 @@ public class Authentication {
     private ReadFcWriteFs stream;
     private boolean authorized = false;
 
+    public Account getAccount(){
+        return this.account;
+    }
     public Authentication(ReadFcWriteFs stream) {
         this.stream = stream;
     }

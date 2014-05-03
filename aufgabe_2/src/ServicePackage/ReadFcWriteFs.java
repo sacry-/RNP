@@ -34,7 +34,6 @@ public class ReadFcWriteFs {
         String erg = "";
         try {
             erg = reader.readLine();
-            System.out.print("ERG AFTER reader.readLine():" + erg);
         } catch (IOException e) {
             e.printStackTrace();
         }
