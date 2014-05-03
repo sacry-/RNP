@@ -6,6 +6,8 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 
+import javax.swing.DebugGraphics;
+
 /**
  * Created by Allquantor on 26.04.14.
  */
@@ -50,7 +52,9 @@ public class ReadFcWriteFs {
         }
 
         try {
-            return (new String(byteArray, "UTF-8")).trim();
+        	String input = (new String(byteArray, "UTF-8")).trim();
+        	ServerStateService.debug(input);
+            return input;
         } catch (UnsupportedEncodingException e) {
             return null;
             //e.printStackTrace();
@@ -62,6 +66,7 @@ public class ReadFcWriteFs {
             if (!clientSocket.isClosed()) {
                 byte[] byteArray = (message + "\n").getBytes("UTF-8");
                 outputStream.write(byteArray, 0, byteArray.length);
+                ServerStateService.debug(message);
             }
 
         } catch (Exception e) {
