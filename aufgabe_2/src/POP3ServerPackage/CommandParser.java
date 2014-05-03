@@ -16,40 +16,82 @@ public class CommandParser {
     public static String parseCommand(String command, Transaction transaction) {
         Scanner scanner = new Scanner(command);
         String cmd = scanner.next();
-        String arg = "";
-
-        if (scanner.hasNext()) {
+        String arg = null;
+        if (scanner.hasNext()) {	// only assign a argument, if it exists. scanner.next() throws exception otherwise.
             arg = scanner.next();
         }
         scanner.close();
+        
+        boolean argGiven = arg != null;
+        
         if (cmd == QUIT) {
             return transaction.quit();
         } else if (cmd == STAT) {
             return transaction.stat();
         } else if (cmd == LIST) {
-            //check arg given or not
-            //if given parse int
-            return transaction.list();
+        	return handleList(argGiven, arg, transaction);
         } else if (cmd == RETR) {
-            //parse int out
-            //if not int error
-            return transaction.retr(1);
+        	try {
+        		int i = Integer.parseInt(arg);
+        		return transaction.retr(i);
+    		}
+    		catch (NumberFormatException e) {
+    			return ServerCodes.failWithInvalidMsgNo(arg);
+    		}
+        	
         } else if (cmd == DELE) {
-        	// parse int
-        	// if not int then error.
-            return transaction.dele(1);
+        	try {
+        		int i = Integer.parseInt(arg);
+        		return transaction.dele(i);
+    		}
+    		catch (NumberFormatException e) {
+    			return ServerCodes.failWithInvalidMsgNo(arg);
+    		}
+        	
         } else if (cmd == NOOP) {
-            return transaction.noop(arg);
+            return transaction.noop();
         } else if (cmd == RSET) {
             return transaction.rset();
         } else if (cmd == UIDL) {
-            //check arg given or not
-            //if given parse int
-            return transaction.uidl(1);
+        	return handleUIDL(argGiven, arg, transaction);
         } else {
             return ServerCodes.fail("Unknown Command " + cmd);
         }
     }
+
+    
+    // boilerplate code to parse Ints and handle the optional argument commands.
+    // I dont know, whether both of these methods can be refactored.....
+    // they're identical except for exchanging "list" <-> "uidl" !!
+	private static String handleList(boolean argGiven, String arg, Transaction transaction) {
+		if (argGiven) {	// if an argument if given, then parse and process it.
+    		try {
+        		int i = Integer.parseInt(arg);
+        		return transaction.list(i);
+    		}
+    		catch (NumberFormatException e) {
+    			return ServerCodes.failWithInvalidMsgNo(arg);
+    		}
+    	}
+    	else {	// else call the argumentless version.
+    		return transaction.list();
+    	}
+	}
+	
+	private static String handleUIDL(boolean argGiven, String arg, Transaction transaction) {
+		if (argGiven) {	// if an argument if given, then parse and process it.
+    		try {
+        		int i = Integer.parseInt(arg);
+        		return transaction.uidl(i);
+    		}
+    		catch (NumberFormatException e) {
+    			return ServerCodes.failWithInvalidMsgNo(arg);
+    		}
+    	}
+    	else {	// else call the argumentless version.
+    		return transaction.uidl();
+    	}
+	}
 
 }
 

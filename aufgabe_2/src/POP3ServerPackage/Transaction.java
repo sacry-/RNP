@@ -9,17 +9,19 @@ class Transaction {
 
 
     private Authentication authentication;
-    private MailboxInterface mailbox;
+    private Mailbox mailbox;
 
-    public Transaction(Authentication authentication) {
+    public Transaction(Authentication authentication, Mailbox mb) {
         this.authentication = authentication;
+        this.mailbox = mb;
 
     }
 
    
     //finished
     String quit() {
-        return ServerCodes.success("QUIT SUCCESFULL");
+    	mailbox.quitAndSaveChanges();
+        return ServerCodes.success("QUIT Signed off.");
     }
 
 
@@ -27,13 +29,12 @@ class Transaction {
     // u. a. die Anzahl aller E-Mails im Postfach und deren Gesamtgröße (in Byte).
 
     //finished
-
     String stat() {
         return ServerCodes.success(mailbox.getEmailCount() + " " + mailbox.getTotalEmailSize() + "octats");
     }
 
     //finished
-    String noop(String secondPart) {
+    String noop() {
         return ServerCodes.success("noop");
     }
 
