@@ -2,9 +2,13 @@ package ServicePackage;
 
 import DataTypePackage.Account;
 import DataTypePackage.Email;
+import POP3ServerPackage.Authentication;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -19,7 +23,51 @@ public class StorageService {
     private static String base = new File(System.getProperty("user.dir")).getAbsolutePath()
             + "/src/ServicePackage/storage/email/";
 
-    public StorageService() {
+    private StorageService() {
+    }
+
+    public static Map<String, Email> inbox(Authentication auth) {
+        List<File> mails = getEmailsForUser(auth.getAccount(), auth.username(), auth.password());
+        HashMap<String, Email> inbox = new HashMap<>();
+        for (File f : mails) {
+            String uidl = stripMailName(f);
+            int size = getByteSize(f);
+            Email mail = new Email(uidl, mailContent(f), size, false);
+            inbox.put(uidl, mail);
+        }
+        return inbox;
+    }
+
+    public static boolean deleteEmail(Authentication auth, Email mail) {
+        if (checkIfExists(auth.getAccount(), auth.username(), auth.password())) {
+            try {
+                String userPath =  getUserPath(auth.getAccount(), auth.username(), auth.password());
+                String path = base + userPath + "/" + mail.uidl();
+                return new File(path).delete();
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    public static Integer getByteSize(File f) {
+        return (int) f.length();
+    }
+
+    private static String mailContent(File f) {
+        try {
+            byte[] encoded = Files.readAllBytes(Paths.get(f.getPath()));
+            return new String(encoded, "utf-8");
+        } catch (Exception e) {
+
+        }
+        return "";
+    }
+
+    private static String stripMailName(File f) {
+        int lastIndex = f.toString().lastIndexOf("/");
+        return f.toString().substring(lastIndex);
     }
 
     public static boolean saveAccount(Account a) {
@@ -42,7 +90,7 @@ public class StorageService {
     public static boolean saveEmail(Account a, String user, String pw, Email email) {
         if (checkIfExists(a, user, pw)) {
             try {
-                String path = base + getUserPath(a, user, pw) + "/" + email.getUidl() + ".txt";
+                String path = base + getUserPath(a, user, pw) + "/" + email.uidl() + ".txt";
                 new File(path).createNewFile();
                 PrintWriter printWriter = new PrintWriter(path, "UTF-8");
                 printWriter.println(email.content());
@@ -51,18 +99,6 @@ public class StorageService {
                 return false;
             }
             return true;
-        }
-        return false;
-    }
-
-    public static boolean deleteEmail(Account a, String user, String pw, Integer uidl) {
-        if (checkIfExists(a, user, pw)) {
-            try {
-                String path = base + getUserPath(a, user, pw) + "/" + uidl + ".txt";
-                return new File(path).delete();
-            } catch (Exception e) {
-                return false;
-            }
         }
         return false;
     }
@@ -161,22 +197,7 @@ public class StorageService {
     }
 
     public static void main(String[] args) {
-        System.out.println(getEmailsForUser(Account.valueOf(1), "lol@lol.de", "pwd"));
-        System.out.println(checkIfExists(Account.valueOf(1)));
-        System.out.println(checkIfExists(Account.valueOf(1), "lol@lol.de", "pwd"));
-        System.out.println(checkIfExists(Account.valueOf(12)));
-        System.out.println(checkIfExists(Account.valueOf(1), "lol@lol.ded", "pwd"));
-        System.out.println(getAllUsersForAccount(Account.valueOf(1)));
-        System.out.println(getAllUsersForAccount(Account.valueOf(12)));
-        System.out.println(getAllAccounts());
-        saveAccount(Account.valueOf(5));
-        saveUser(Account.valueOf(5), "lol@lol.de", "pwd");
-        saveUser(Account.valueOf(5), "lol2@lol.de", "pwd");
-        saveEmail(Account.valueOf(5), "lol2@lol.de", "pwd",
-                Email.valueOf("abc",
-                        "asdjkjkasfjkajknadsjafnjkafjkdjknsad\ndslflksdkf\nlsdfkskdaslsdlsdgvlksvsodckdcnabckafujk\n",
-                        2));
-        deleteEmail(Account.valueOf(5), "lol2@lol.de", "pwd", 2);
+
     }
 
 

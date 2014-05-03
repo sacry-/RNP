@@ -5,31 +5,38 @@ package DataTypePackage;
  */
 public class Email {
 
-    private String addressFrom;
+    private boolean markedAsDeleted;
     private String content;
-    private Integer uidl;
-    private Long timeStamp;
+    private String uidl;
+    private Integer size;
 
-    private Email(String addressFrom, String content, Integer uidl) {
-        this.addressFrom = addressFrom;
-        this.content = content;
+    public Email(String uidl, String content, Integer size, boolean markedAsDeleted) {
         this.uidl = uidl;
-        this.timeStamp = System.currentTimeMillis();
+        this.content = content;
+        this.size = size;
+        this.markedAsDeleted = markedAsDeleted;
     }
 
-    public static Email valueOf(String addressFrom, String content, Integer uidl) {
-        return new Email(addressFrom, content, uidl);
+    public Integer size() {
+        return this.size;
+    }
+
+    public String uidl() {
+        return this.uidl;
     }
 
     public String content() {
-        return content;
+        return this.content;
     }
 
-    public Long timeStamp() {
-        return timeStamp;
+    public boolean toBeDeleted(boolean markedAsDeleted) {
+        this.markedAsDeleted = markedAsDeleted;
+        return markedAsDeleted;
     }
 
-    public Integer getUidl() {
-        return uidl;
+    public boolean isMarkedAsDeleted() {
+        return this.markedAsDeleted;
     }
+
+
 }

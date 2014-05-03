@@ -14,8 +14,6 @@ public interface Mailbox {
 
     public int getTotalEmailSize();
 
-    public int getEmailSizeToID(int ID);
-
     public void unmarkAllMarked();
 
     public Map<Integer, Integer> getInboxInfo();

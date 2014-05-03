@@ -1,8 +1,11 @@
 package ServicePackage;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import DataTypePackage.Account;
+import DataTypePackage.Email;
 import POP3ServerPackage.Authentication;
 import POP3ServerPackage.Mailbox;
 
@@ -10,61 +13,72 @@ import POP3ServerPackage.Mailbox;
 
 public class MailboxImpl implements Mailbox {
 	Authentication auth;
+	Map<Integer, Email> emails;	// maps from IDs to Emails
+	Map<String, Email> UIDLmails;	// maps from UDILs to Emails
 	public MailboxImpl(Authentication auth) {
 		this.auth = auth;
+		UIDLmails = StorageService.inbox(auth);
+		
+		int i = 1;
+		Map<Integer, Email> emails = new HashMap<Integer, Email>();
+		for(Email uidl:UIDLmails.values()){
+			emails.put(i, uidl);
+			i+=1;
+		}
+		this.emails = emails;
 	}
-
+	
 	@Override
 	public int getEmailCount() {
-		// TODO Auto-generated method stub
-		return 0;
+		return emails.keySet().size();
 	}
 
 	@Override
 	public int getTotalEmailSize() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getEmailSizeToID(int ID) {
-		// TODO Auto-generated method stub
-		return 0;
+		int sum = 0;
+		for(Email eml:emails.values()) {
+			sum+=eml.size();
+		}
+		return sum;
 	}
 
 	@Override
 	public void unmarkAllMarked() {
-		// TODO Auto-generated method stub
-		
+		for(Email eml:emails.values()){
+			eml.toBeDeleted(false);
+		}
 	}
 
 	@Override
 	public Map<Integer, Integer> getInboxInfo() {
-		// TODO Auto-generated method stub
-		return null;
+		Map<Integer, Integer> accu = new HashMap<>();
+		for(Entry<Integer, Email> entry:emails.entrySet()) {
+			accu.put(entry.getKey(), entry.getValue().size());
+		}
+		return accu;
 	}
 
 	@Override
 	public Map<Integer, Integer> getInboxUIDLs() {
-		// TODO Auto-generated method stub
-		return null;
+		return UIDLmails.keySet();
 	}
 
 	@Override
 	public String getEmailValue(int EmailID) {
-		// TODO Auto-generated method stub
-		return null;
+		return emails.get(EmailID).content();
 	}
 
 	@Override
 	public boolean markDeleted(int messageID) {
-		// TODO Auto-generated method stub
-		return false;
+		return emails.get(messageID).toBeDeleted(true);
 	}
 
 	@Override
 	public void quitAndSaveChanges() {
-		// TODO Auto-generated method stub
-		
+		for(Email eml:emails.values()) {
+			if(eml.isMarkedAsDeleted()) {
+				StorageService.deleteEmail(auth, eml);
+			}
+		}
 	}
 }
