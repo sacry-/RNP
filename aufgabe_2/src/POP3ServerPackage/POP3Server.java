@@ -2,6 +2,7 @@ package POP3ServerPackage;
 
 import ServicePackage.ReadFcWriteFs;
 import ServicePackage.ServerStateService;
+import ServicePackage.Logger;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -17,6 +18,7 @@ public class POP3Server {
     ReadFcWriteFs stream;
     static ServerSocket welcomeSocket;
     Socket clientSocket;
+    public static Logger logger;
 
     public POP3Server(){
         initializeServer();
@@ -28,6 +30,8 @@ public class POP3Server {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        logger = new Logger("serverlog.txt");
+        
     }
 
     private void intializeStreams() {

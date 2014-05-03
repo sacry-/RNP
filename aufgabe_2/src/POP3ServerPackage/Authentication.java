@@ -1,5 +1,6 @@
 package POP3ServerPackage;
 
+import static POP3ServerPackage.POP3Server.logger;
 import DataTypePackage.Account;
 import ServicePackage.MailboxImpl;
 import ServicePackage.ReadFcWriteFs;
@@ -70,6 +71,7 @@ public class Authentication {
         String line = "";
 
         line = stream.readFromClient();
+        logger.write("Server gelesen: " + line);
         System.out.println("DAS IST DIE LINE: " + line);
 
 
