@@ -1,8 +1,8 @@
 package POP3ServerPackage;
 
 import ServicePackage.ReadFcWriteFs;
+import ServicePackage.ServerStateService;
 
-import java.io.IOException;
 import java.net.Socket;
 
 import static POP3ServerPackage.CommandParser.parseCommand;
@@ -16,6 +16,7 @@ public class POP3ServerThread extends Thread {
     Transaction transaction;
     Authentication authentication;
     ReadFcWriteFs stream;
+
 
     public POP3ServerThread(Socket socket, ReadFcWriteFs stream, int threadID) {
         this.socket = socket;
@@ -38,16 +39,15 @@ public class POP3ServerThread extends Thread {
 
 
     private void transaction() {
-        while (true) {
-            String input = stream.readFromClient();
-            String out = parseCommand(input, transaction);
-            stream.sendToClient(out);
-            if(input.equals(ServerCodes.QUIT)){
-                System.out.println("w00t-" + out + "-w00t");
-                break;
-            }
+        if (!socket.isClosed() && socket.isConnected()) {
+            String input = null;
+            do {
+                input = stream.readFromClient();
+                String out = parseCommand(input, transaction);
+                stream.sendToClient(out);
+               
+            } while (!isConnectionClosed(input));
         }
-
         closeConnection();
     }
 
@@ -60,12 +60,18 @@ public class POP3ServerThread extends Thread {
 
     private void closeConnection() {
         stream.closeConnection();
-        try {
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        ServerCodes.closeSocketAndHisStream(socket);
+        //decrease thread count
+        ServerStateService.threadAnzahl--;
 
+        // socket.close();
+        // socket.shutdownInput();
+        // socket.shutdownOutput();
+    }
+
+
+    boolean isConnectionClosed(String resp) {
+        return resp.startsWith(ServerCodes.QUIT);
     }
 
 }

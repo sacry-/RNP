@@ -1,12 +1,13 @@
 package POP3ServerPackage;
 
-import static POP3ServerPackage.POP3Server.logger;
 import DataTypePackage.Account;
 import ServicePackage.MailboxImpl;
 import ServicePackage.ReadFcWriteFs;
 import ServicePackage.StorageService;
 
 import java.util.Scanner;
+
+import static POP3ServerPackage.POP3Server.logger;
 
 /**
  * Created by Allquantor on 26.04.14.
@@ -76,11 +77,11 @@ public class Authentication {
 
 
         Scanner scanner = new Scanner(line);
-        String cmd = getNextLine(scanner);
+        String cmd = ServerCodes.getNextLine(scanner);
         System.out.println("DAS IST CMD_1: " + cmd);
 
         if (cmd.equals(ServerCodes.USER)) {
-            String user = getNextLine(scanner);
+            String user = ServerCodes.getNextLine(scanner);
             System.out.println("DAS IST CMD_2:  " + user);
             scanner.close();
             if (StorageService.checkIfExistst(account, user)) {
@@ -108,10 +109,10 @@ public class Authentication {
     public boolean isPwd(String user) {
         String line = stream.readFromClient();
         Scanner scanner = new Scanner(line);
-        String cmd = getNextLine(scanner);
+        String cmd = ServerCodes.getNextLine(scanner);
 
         if (cmd.equals(ServerCodes.PASS)) {
-            String password = getNextLine(scanner);
+            String password = ServerCodes.getNextLine(scanner);
             scanner.close();
             System.out.println("Password:" + password);
             if (StorageService.checkIfExists(account, username, password)) {
@@ -128,12 +129,7 @@ public class Authentication {
         return isPwd(user);
     }
 
-    private String getNextLine(Scanner scanner) {
-        if (scanner.hasNext()) {
-            return scanner.next();
-        }
-        return "";
-    }
+
 
     public String username() {
         return username;

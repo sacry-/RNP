@@ -68,14 +68,10 @@ public class POP3Server {
 
     //close all sockets
     private void closeConnection() {
-        try {
-            System.out.println("Server: starting shutdown process");
-            stream.closeConnection();
-            welcomeSocket.close();
-            clientSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        System.out.println("Server: starting shutdown process");
+        ServerCodes.closeSocketAndHisStream(welcomeSocket);
+        ServerCodes.closeSocketAndHisStream(clientSocket);
+        stream.closeConnection();
     }
 
 
