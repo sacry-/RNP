@@ -22,6 +22,7 @@ public class Authentication {
     private String username;
     private String password;
     private ReadFcWriteFs stream;
+    private boolean authorized = false;
 
     public Authentication(ReadFcWriteFs stream) {
         this.stream = stream;
@@ -31,14 +32,51 @@ public class Authentication {
         return new MailboxImpl(this);
     }
 
+
+    public void waitForAuthentication() {
+
+        while (!authorized) {
+            String line = stream.readFromClient();
+            String command, args;
+            if (line == null || line.length() == 0) {
+                command = "";
+                args = "";
+            } else {
+                String[] userIn = line.split(" ");
+                command = userIn[0];
+                args = userIn[1];
+            }
+
+            if (command.equals(ServerCodes.USER)) {
+
+            } else if (command.equals(ServerCodes.PASS)) {
+
+            } else if ((command.equals(ServerCodes.QUIT))) {
+
+            } else {
+
+            }
+        }
+    }
+
+    public boolean authorized() {
+        return this.authorized;
+    }
+
     public boolean isAuthorized() {
-        String line = stream.readFromClient();
+        String line = "";
+
+        line = stream.readFromClient();
+        System.out.println("DAS IST DIE LINE: " + line);
+
 
         Scanner scanner = new Scanner(line);
         String cmd = getNextLine(scanner);
+        System.out.println("DAS IST CMD_1: " + cmd);
 
         if (cmd.equals(ServerCodes.USER)) {
-            String user = scanner.next();
+            String user = getNextLine(scanner);
+            System.out.println("DAS IST CMD_2:  " + user);
             scanner.close();
             if (StorageService.checkIfExistst(account, user)) {
                 this.username = user;
@@ -46,7 +84,15 @@ public class Authentication {
                 return isPwd(user);
             }
         }
+
+        //
+        if (cmd.equals("")) {
+            stream.sendToClient(ServerCodes.fail(""));
+            return isAuthorized();
+        }
+
         if (cmd.equals(ServerCodes.QUIT)) {
+            stream.sendToClient(ServerCodes.success("QUIT"));
             return false;
         }
         scanner.close();
@@ -57,11 +103,10 @@ public class Authentication {
     public boolean isPwd(String user) {
         String line = stream.readFromClient();
         Scanner scanner = new Scanner(line);
-
-        String cmd = getNextLine(new Scanner(line));
+        String cmd = getNextLine(scanner);
 
         if (cmd.equals(ServerCodes.PASS)) {
-            String password = scanner.next();
+            String password = getNextLine(scanner);
             scanner.close();
             System.out.println("Password:" + password);
             if (StorageService.checkIfExists(account, username, password)) {

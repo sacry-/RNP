@@ -1,12 +1,8 @@
 package ServicePackage;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.Socket;
-
-import javax.swing.DebugGraphics;
+import java.util.Scanner;
 
 /**
  * Created by Allquantor on 26.04.14.
@@ -20,7 +16,7 @@ public class ReadFcWriteFs {
     OutputStream outputStream;
 
 
-    public ReadFcWriteFs(Socket socket){
+    public ReadFcWriteFs(Socket socket) {
         clientSocket = socket;
         try {
             this.inputStream = clientSocket.getInputStream();
@@ -31,7 +27,29 @@ public class ReadFcWriteFs {
     }
 
 
-    public String readFromClient() {
+    public String readFromClient(){
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        //Scanner scanner = new Scanner(inputStream);
+        String erg = "";
+        try {
+            erg = reader.readLine();
+            System.out.print("ERG AFTER reader.readLine():" + erg);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(erg == null) return "";
+        return erg;
+    }
+
+    public String readFromClient2() {
+        Scanner scanner = new java.util.Scanner(inputStream).useDelimiter("\n");
+        //Scanner scanner = new Scanner(inputStream);
+        String erg = scanner.hasNext() ? scanner.next() : "";
+        return erg;
+    }
+
+    public String readFromClient1() {
         int read;
         byte[] byteArray = new byte[512];
         boolean keepGo = true;
@@ -52,8 +70,8 @@ public class ReadFcWriteFs {
         }
 
         try {
-        	String input = (new String(byteArray, "UTF-8")).trim();
-        	ServerStateService.debug(input);
+            String input = (new String(byteArray, "UTF-8")).trim();
+            ServerStateService.debug(input);
             return input;
         } catch (UnsupportedEncodingException e) {
             return null;
