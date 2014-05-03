@@ -29,8 +29,9 @@ public class Email {
         return this.content;
     }
 
-    public void toBeDeleted(boolean markedAsDeleted) {
+    public boolean toBeDeleted(boolean markedAsDeleted) {
         this.markedAsDeleted = markedAsDeleted;
+        return markedAsDeleted;
     }
 
     public boolean isMarkedAsDeleted() {

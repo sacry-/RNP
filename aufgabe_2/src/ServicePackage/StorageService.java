@@ -90,7 +90,7 @@ public class StorageService {
     public static boolean saveEmail(Account a, String user, String pw, Email email) {
         if (checkIfExists(a, user, pw)) {
             try {
-                String path = base + getUserPath(a, user, pw) + "/" + email.getUidl() + ".txt";
+                String path = base + getUserPath(a, user, pw) + "/" + email.uidl() + ".txt";
                 new File(path).createNewFile();
                 PrintWriter printWriter = new PrintWriter(path, "UTF-8");
                 printWriter.println(email.content());

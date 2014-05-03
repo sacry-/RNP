@@ -70,15 +70,14 @@ public class MailboxImpl implements Mailbox {
 
 	@Override
 	public boolean markDeleted(int messageID) {
-		emails.get(messageID).toBeDeleted(true);
+		return emails.get(messageID).toBeDeleted(true);
 	}
 
 	@Override
 	public void quitAndSaveChanges() {
-		// TODO Auto-generated method stub
 		for(Email eml:emails.values()) {
 			if(eml.isMarkedAsDeleted()) {
-				deleteEmail(auth, eml);
+				StorageService.deleteEmail(auth, eml);
 			}
 		}
 	}
