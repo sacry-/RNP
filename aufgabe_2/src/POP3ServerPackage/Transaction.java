@@ -1,6 +1,7 @@
 package POP3ServerPackage;
 
 import DataTypePackage.Account;
+import ServicePackage.ServerStateService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,15 +67,10 @@ class Transaction {
     */
 
     String quit() {
-
-        return null;
+        ServerStateService.setShutdown();
+        return ServerCodes.success("QUIT SUCCESFULL");
     }
 
-
-    String quit(String secondPart) {
-
-        return null;
-    }
 
     String stat(String secondPart) {
 
@@ -84,7 +80,6 @@ class Transaction {
 
     String noop(String secondPart) {
         return null;
-
     }
 
     String retr(String secondPart) {
