@@ -1,5 +1,6 @@
 package POP3ServerPackage;
 
+import ServicePackage.MailboxImpl;
 import ServicePackage.ReadFcWriteFs;
 
 import java.net.Socket;

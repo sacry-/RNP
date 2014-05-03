@@ -1,6 +1,7 @@
 package POP3ServerPackage;
 
 import DataTypePackage.Account;
+import ServicePackage.MailboxImpl;
 import ServicePackage.ReadFcWriteFs;
 import ServicePackage.StorageService;
 
@@ -18,6 +19,10 @@ public class Authentication {
 
     public Authentication(ReadFcWriteFs stream) {
         this.stream = stream;
+    }
+    
+    public Mailbox getMailbox(){
+    	return new MailboxImpl(this);
     }
     
     public boolean isAuthorized() {

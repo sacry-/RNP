@@ -11,10 +11,9 @@ class Transaction {
     private Authentication authentication;
     private Mailbox mailbox;
 
-    public Transaction(Authentication authentication, Mailbox mb) {
+    public Transaction(Authentication authentication) {
         this.authentication = authentication;
-        this.mailbox = mb;
-
+        mailbox = authentication.getMailbox();
     }
 
    
