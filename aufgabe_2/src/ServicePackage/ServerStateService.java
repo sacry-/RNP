@@ -8,7 +8,7 @@ public class ServerStateService {
     public static boolean serverStateRunning = true;
     public static boolean updateState = false;
 
-    public static final int PORT = 1100;
+    public static final int PORT = 11000;
     public final static int MAX_CONNECTIONS = 100;
     
     private static final boolean DEBUGMODE = true; 
