@@ -26,10 +26,13 @@ public class Authentication {
     public Authentication(ReadFcWriteFs stream) {
         this.stream = stream;
     }
-
     public Mailbox getMailbox() {
         return new MailboxImpl(this);
     }
+
+
+
+
 
 
     public void waitForAuthentication() {
@@ -72,11 +75,11 @@ public class Authentication {
 
         Scanner scanner = new Scanner(line);
         String cmd = ServerCodes.getNextLine(scanner);
-        System.out.println("DAS IST CMD_1: " + cmd);
+      //  System.out.println("DAS IST CMD_1: " + cmd);
 
         if (cmd.equals(ServerCodes.USER)) {
             String user = ServerCodes.getNextLine(scanner);
-            System.out.println("DAS IST CMD_2:  " + user);
+          //  System.out.println("DAS IST CMD_2:  " + user);
             scanner.close();
             if (StorageService.checkIfExistst(account, user)) {
                 this.username = user;
@@ -85,14 +88,15 @@ public class Authentication {
             }
         }
 
-        //
-        if (cmd.equals("")) {
-            stream.sendToClient(ServerCodes.fail(""));
+
+        if (cmd.equals(ServerCodes.NULL_STRING)) {
+            stream.sendToClient(ServerCodes.fail(ServerCodes.NULL_STRING));
+
             return isAuthorized();
         }
 
         if (cmd.equals(ServerCodes.QUIT)) {
-            stream.sendToClient(ServerCodes.success("QUIT"));
+            stream.sendToClient(ServerCodes.QUIT);
             return false;
         }
         scanner.close();
