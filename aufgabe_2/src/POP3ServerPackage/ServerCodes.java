@@ -26,6 +26,10 @@ public class ServerCodes {
     public static final String NEWLINE = System.getProperty("line.separator");
     public static final String MULTI_LINE_TERMINATOR = NEWLINE + ".";
     public static final String NULL_STRING = "";
+    public static final String WIDESPACE = " ";
+    public static final String PATH_SEPARATOR = System.getProperty("path.separator");
+    public static final String OCTATS = "Octats";
+    public static final String SIGN_OFF = "QUIT - SIGNED OFF";
 
     private ServerCodes() {
 
@@ -60,11 +64,11 @@ public class ServerCodes {
     }
 
     public static String success(String message) {
-        return (OK + " " + message);
+        return (OK + WIDESPACE + message);
     }
 
     public static String fail(String message) {
-        return (ERROR + " " + message);
+        return (ERROR + WIDESPACE + message);
     }
 
     public static String failWithInvalidMsgNo(String arg) {

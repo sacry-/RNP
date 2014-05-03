@@ -15,15 +15,10 @@ public class CommandParser {
 
     public static String parseCommand(String command, Transaction transaction) {
         Scanner scanner = new Scanner(command);
+
         String cmd = ServerCodes.getNextLine(scanner);
         String arg = ServerCodes.getNextLine(scanner);
         scanner.close();
-
-        //String arg = null;
-        //if (scanner.hasNext()) {    // only assign a argument, if it exists. scanner.next() throws exception otherwise.
-          //  arg = scanner.next();
-        //}
-
 
         boolean argGiven = arg != NULL_STRING;
 

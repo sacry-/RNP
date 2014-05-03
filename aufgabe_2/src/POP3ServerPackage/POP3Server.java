@@ -1,8 +1,8 @@
 package POP3ServerPackage;
 
+import ServicePackage.Logger;
 import ServicePackage.ReadFcWriteFs;
 import ServicePackage.ServerStateService;
-import ServicePackage.Logger;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -20,7 +20,7 @@ public class POP3Server {
     Socket clientSocket;
     public static Logger logger;
 
-    public POP3Server(){
+    public POP3Server() {
         initializeServer();
     }
 
@@ -31,7 +31,7 @@ public class POP3Server {
             e.printStackTrace();
         }
         logger = new Logger("serverlog.txt");
-        
+
     }
 
     private void intializeStreams() {
@@ -43,11 +43,10 @@ public class POP3Server {
         }
     }
 
-
     public void serverRun() {
         while (readyToAcceptNewConnection()) {
             intializeStreams();
-            if(threadAnzahl <= MAX_CONNECTIONS) {
+            if (threadAnzahl <= MAX_CONNECTIONS) {
                 new POP3ServerThread(clientSocket, stream, threadAnzahl++).start();
             }
         }
@@ -59,12 +58,9 @@ public class POP3Server {
         s.serverRun();
     }
 
-
-
     private boolean readyToAcceptNewConnection() {
         return ServerStateService.isRunning();
     }
-
 
     //close all sockets
     private void closeConnection() {

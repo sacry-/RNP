@@ -3,6 +3,7 @@ package ServicePackage;
 import DataTypePackage.Email;
 import POP3ServerPackage.Authentication;
 import POP3ServerPackage.Mailbox;
+import POP3ServerPackage.ServerCodes;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +24,7 @@ public class MailboxImpl implements Mailbox {
         Map<Integer, Email> emails = new HashMap<Integer, Email>();
         for (Email uidl : UIDLmails.values()) {
             emails.put(i, uidl);
-            i += 1;
+            i++;
         }
         this.emails = emails;
     }
@@ -72,7 +73,7 @@ public class MailboxImpl implements Mailbox {
         if (emails.containsKey(emailID)) {
             return emails.get(emailID).content();
         }
-        return "";
+        return ServerCodes.NULL_STRING;
     }
 
     @Override

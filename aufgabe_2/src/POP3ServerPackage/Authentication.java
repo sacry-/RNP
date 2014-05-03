@@ -13,12 +13,6 @@ import static POP3ServerPackage.POP3Server.logger;
  * Created by Allquantor on 26.04.14.
  */
 public class Authentication {
-    // TODO: we need to insert locking user access here.
-    // once a authentication is authed, it has seated the user and
-    // no other may access it.
-    // we have to lock the user here.
-    // also, we have to write a unlock() methode here
-    // which is then called when the lient quits.
 
     private Account account = Account.valueOf(1);
     private String username;
