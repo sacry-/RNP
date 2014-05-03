@@ -23,7 +23,7 @@ public class CommandParser {
         }
         scanner.close();
         if (cmd == QUIT) {
-            return transaction.quit(arg);
+            return transaction.quit();
         } else if (cmd == STAT) {
             return transaction.stat(arg);
         } else if (cmd == LIST) {

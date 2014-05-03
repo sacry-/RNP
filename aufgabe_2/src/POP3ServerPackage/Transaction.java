@@ -12,9 +12,12 @@ import java.util.List;
  */
 class Transaction {
 
+
+
     public Transaction(Authentication authentication) {
-    	
+
     }
+
 
     private boolean userLogged = false;
     private List<Account> accountList = new ArrayList<>();
