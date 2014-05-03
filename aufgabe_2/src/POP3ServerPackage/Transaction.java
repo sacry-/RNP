@@ -1,11 +1,6 @@
 package POP3ServerPackage;
 
-import DataTypePackage.Account;
-import ServicePackage.ServerStateService;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import java.util.Map;
 
 /**
  * Created by Allquantor on 20.04.14.
@@ -13,95 +8,89 @@ import java.util.List;
 class Transaction {
 
 
+    private Authentication authentication;
+    private MailboxInterface mailbox;
 
     public Transaction(Authentication authentication) {
+        this.authentication = authentication;
 
     }
 
-
-    private boolean userLogged = false;
-    private List<Account> accountList = new ArrayList<>();
-
-
-
-
-
-    /*
-    Restrictions:
-    may only be given in the AUTHORIZATION state after the POP3
-    greeting or after an unsuccessful USER or PASS command
-    Discussion:
-    To authenticate using the USER and PASS command
-    combination, the client must first issue the USER
-    command. If the POP3 server responds with a positive
-    status indicator ("+OK"), then the client may issue
-    either the PASS command to complete the authentication,
-    or the QUIT command to terminate the POP3 session. If
-    the POP3 server responds with a negative status indicator
-            ("-ERR") to the USER command, then the client may either
-    issue a new authentication command or may issue the QUIT
-    command.
-    The server may return a positive response even though no
-    such mailbox exists. The server may return a negative
-    response if mailbox exists, but does not permit plaintext
-
-    Examples:
-    C: USER frated
-    S: -ERR sorry, no mailbox for frated here
-    ...
-    C: USER mrose
-    S: +OK mrose is a real hoopy frood
-    */
-
-
-
-
-    /*
-    Here is the summary for the QUIT command when used in the
-    AUTHORIZATION state:
-    QUIT
-    Arguments: none
-    Restrictions: none
-    Possible Responses:
-    +OK
-    Examples:
-    C: QUIT
-    S: +OK dewey POP3 server signing off
-    */
-
+   
+    //finished
     String quit() {
-        ServerStateService.setShutdown();
         return ServerCodes.success("QUIT SUCCESFULL");
     }
 
 
-    String stat(String secondPart) {
+    //liefert den Status der Mailbox,
+    // u. a. die Anzahl aller E-Mails im Postfach und deren Gesamtgröße (in Byte).
 
-        return null;
+    //finished
+
+    String stat() {
+        return ServerCodes.success(mailbox.getEmailCount() + " " + mailbox.getTotalEmailSize() + "octats");
     }
 
-
+    //finished
     String noop(String secondPart) {
-        return null;
+        return ServerCodes.success("noop");
     }
 
-    String retr(String secondPart) {
-        return null;
+    //finished
+    String rset() {
+        mailbox.unmarkAllMarked();
+        return stat();
     }
 
-    String list(String secondPart) {
-        return null;
+    //finished
+    String retr(int secondPart) {
+        return list(secondPart) + ServerCodes.NEWLINE + mailbox.getEmailValue(secondPart) + ServerCodes.MULTI_LINE_TERMINATOR;
     }
 
-    String rset(String secondPart) {
-        return null;
+    //finished
+
+    String list(int key) {
+        return fromInfoMapWithKey(key, mailbox.getInboxInfo());
     }
 
-    String dele(String secondPart) {
-        return null;
+    //finished
+
+    String list() {
+
+        return stat() + fromInfoMap(mailbox.getInboxInfo());
     }
 
-    String uidl(String secondPart) {
-        return null;
+
+    String dele(int messageID) {
+        if (mailbox.markDeleted(messageID)) {
+            return ServerCodes.success("MESSAGE:" + messageID + " DELETED");
+        } else {
+            return ServerCodes.fail("NO SUCH MESSAGE OR ALREADY DELEATED");
+        }
+    }
+
+    String uidl(int messageID) {
+        return fromInfoMapWithKey(messageID, mailbox.getInboxUIDLs());
+    }
+
+    String uidl() {
+        return ServerCodes.success(fromInfoMap(mailbox.getInboxUIDLs()));
+    }
+
+    private String fromInfoMap(Map<Integer, ?> mapsen) {
+        String accu = "";
+        for (int k : mapsen.keySet()) {
+            accu += k + " " + mapsen.get(k) + ServerCodes.NEWLINE;
+        }
+        return ServerCodes.NEWLINE + accu + ServerCodes.MULTI_LINE_TERMINATOR;
+    }
+
+    private String fromInfoMapWithKey(int key, Map<Integer, ?> mapsen) {
+        if (!mapsen.containsKey(key)) {
+            return ServerCodes.fail("MESSAGE WITH ID:" + key + " DOES NOT EXIST");
+        } else {
+            return ServerCodes.success(key + " " + mapsen.get(key));
+        }
     }
 }

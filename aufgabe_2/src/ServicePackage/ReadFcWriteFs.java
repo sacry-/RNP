@@ -59,8 +59,6 @@ public class ReadFcWriteFs {
 
     public void sendToClient(String message) {
         try {
-
-
             if (!clientSocket.isClosed()) {
                 byte[] byteArray = (message + "\n").getBytes("UTF-8");
                 outputStream.write(byteArray, 0, byteArray.length);

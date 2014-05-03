@@ -25,17 +25,21 @@ public class CommandParser {
         if (cmd == QUIT) {
             return transaction.quit();
         } else if (cmd == STAT) {
-            return transaction.stat(arg);
+            return transaction.stat();
         } else if (cmd == LIST) {
-            return transaction.list(arg);
+            //check arg given or not
+            //if given parse int
+            return transaction.list();
         } else if (cmd == RETR) {
-            return transaction.retr(arg);
+            //parse int out
+            //if not int error
+            return transaction.retr(1);
         } else if (cmd == DELE) {
             return transaction.dele(arg);
         } else if (cmd == NOOP) {
             return transaction.noop(arg);
         } else if (cmd == RSET) {
-            return transaction.rset(arg);
+            return transaction.rset();
         } else if (cmd == UIDL) {
             return transaction.uidl(arg);
         } else {

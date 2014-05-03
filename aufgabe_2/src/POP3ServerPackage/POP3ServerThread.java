@@ -1,9 +1,10 @@
 package POP3ServerPackage;
 
-import java.net.Socket;
-import POP3ServerPackage.Transaction;
-import static POP3ServerPackage.CommandParser.parseCommand;
 import ServicePackage.ReadFcWriteFs;
+
+import java.net.Socket;
+
+import static POP3ServerPackage.CommandParser.parseCommand;
 
 /**
  * Created by Allquantor on 20.04.14.
@@ -36,10 +37,13 @@ public class POP3ServerThread extends Thread {
 
     
     private void transaction() {
-    	while(true) parseCommand("from Socket", transaction);
+        while(true){
+            parseCommand("from Socket", transaction);
+        }
     }
 
     public void run() {
+
     	if(authorization()){
     		transaction();
     	}
