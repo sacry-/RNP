@@ -37,7 +37,6 @@ public class POP3ServerThread extends Thread {
         }
     }
 
-
     private void transaction() {
         if (!socket.isClosed() && socket.isConnected()) {
             String input = null;
@@ -63,10 +62,6 @@ public class POP3ServerThread extends Thread {
         ServerCodes.closeSocketAndHisStream(socket);
         //decrease thread count
         ServerStateService.threadAnzahl--;
-
-        // socket.close();
-        // socket.shutdownInput();
-        // socket.shutdownOutput();
     }
 
 
