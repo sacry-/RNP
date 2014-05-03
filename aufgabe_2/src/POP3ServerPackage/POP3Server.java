@@ -41,7 +41,7 @@ public class POP3Server {
 
 
     public void serverRun() {
-        while (ServerStateService.isRunning() && threadAnzahl <= MAX_CONNECTIONS) {
+        while (readyToAcceptNewConnection()) {
             intializeStreams();
             new POP3ServerThread(clientSocket, stream, threadAnzahl++).start();
         }
@@ -50,6 +50,24 @@ public class POP3Server {
     public static void main(String[] args) {
         POP3Server s = new POP3Server();
         s.serverRun();
+    }
+
+
+
+    private boolean readyToAcceptNewConnection() {
+        return ServerStateService.isRunning() && threadAnzahl <= MAX_CONNECTIONS;
+    }
+
+
+    //close all sockets
+    private void closeConnection() {
+        try {
+            System.out.println("Server: starting shutdown process");
+            welcomeSocket.close();
+            clientSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 

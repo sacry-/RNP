@@ -20,6 +20,8 @@ class Transaction {
 
 
 
+
+
     /*
     Restrictions:
     may only be given in the AUTHORIZATION state after the POP3
@@ -64,15 +66,18 @@ class Transaction {
     */
 
     String quit() {
+
         return null;
     }
 
 
     String quit(String secondPart) {
+
         return null;
     }
 
     String stat(String secondPart) {
+
         return null;
     }
 
