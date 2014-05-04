@@ -18,7 +18,6 @@ public class Authentication {
     private String username;
     private String password;
     private ReadFcWriteFs stream;
-    private boolean authorized = false;
 
     public Account getAccount(){
         return this.account;
@@ -30,42 +29,7 @@ public class Authentication {
         return new MailboxImpl(this);
     }
 
-
-
-
-
-
-    public void waitForAuthentication() {
-
-        while (!authorized) {
-            String line = stream.readFromClient();
-            String command, args;
-            if (line == null || line.length() == 0) {
-                command = "";
-                args = "";
-            } else {
-                String[] userIn = line.split(" ");
-                command = userIn[0];
-                args = userIn[1];
-            }
-
-            if (command.equals(ServerCodes.USER)) {
-
-            } else if (command.equals(ServerCodes.PASS)) {
-
-            } else if ((command.equals(ServerCodes.QUIT))) {
-
-            } else {
-
-            }
-        }
-    }
-
-    public boolean authorized() {
-        return this.authorized;
-    }
-
-    public boolean isAuthorized() {
+    public boolean authenticate() {
         String line = "";
 
         line = stream.readFromClient();
@@ -92,7 +56,7 @@ public class Authentication {
         if (cmd.equals(ServerCodes.NULL_STRING)) {
             stream.sendToClient(ServerCodes.fail(ServerCodes.NULL_STRING));
 
-            return isAuthorized();
+            return authenticate();
         }
 
         if (cmd.equals(ServerCodes.QUIT)) {
@@ -101,7 +65,7 @@ public class Authentication {
         }
         scanner.close();
         stream.sendToClient(ServerCodes.fail(line));
-        return isAuthorized();
+        return authenticate();
     }
 
     public boolean isPwd(String user) {
@@ -113,7 +77,7 @@ public class Authentication {
             String password = ServerCodes.getNextLine(scanner);
             scanner.close();
             System.out.println("Password:" + password);
-            if (StorageService.checkIfExists(account, username, password)) {
+            if (StorageService.checkIfExists(account, user, password)) {
                 this.password = password;
                 stream.sendToClient(ServerCodes.success("pwd " + password));
                 return true;

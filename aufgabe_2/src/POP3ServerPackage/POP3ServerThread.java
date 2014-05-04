@@ -26,7 +26,7 @@ public class POP3ServerThread extends Thread {
 
     private boolean authorization() {
         authentication = new Authentication(stream);
-        boolean authed = authentication.isAuthorized();
+        boolean authed = authentication.authenticate();
         if (authed) {
             transaction = new Transaction(authentication);
             return true;
