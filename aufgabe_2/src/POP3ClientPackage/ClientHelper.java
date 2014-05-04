@@ -14,7 +14,6 @@ import java.util.Scanner;
 import ServicePackage.Logger;
 import ServicePackage.ServerStateService;
 import POP3ClientPackage.ClientUser;
-import POP3ServerPackage.ServerCodes;
 import static POP3ServerPackage.ServerCodes.*;
 
 public class ClientHelper {
@@ -180,9 +179,9 @@ public class ClientHelper {
 			}
 			
 			try {
-				this.wait(WAITMS);
+				Thread.sleep(WAITMS);
 			} catch (InterruptedException e) {
-				debugLog("Client Thread konnte nicht bis zu Ende warten");
+				debugLog("Client waiting disturbed");
 			}
 		}
 	}
