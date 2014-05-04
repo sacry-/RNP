@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ServicePackage.Logger;
+import ServicePackage.ServerStateService;
 import POP3ClientPackage.ClientUser;
 import POP3ServerPackage.ServerCodes;
 
@@ -19,13 +20,7 @@ public class ClientHelper {
 	
 	private final static Logger logger = new Logger("Clientlog.txt");
 	
-	private final String OK = "OK ";
-	private final String ERROR = "ERROR ";
-	private final int ASCII_LINEFEED = 10;
-	private final int STREAM_DEFAULT = -1;
-	private final int INPUT_SIZE_BYTE = 65535;
-	private final char SPACE = ' ';
-	private final int POPPERIOD = 30000;
+	private final int WAITMS = 30000;
 	
 	private Socket socket;
 	boolean running = true;
@@ -43,6 +38,7 @@ public class ClientHelper {
 	// TODO: documenting comments
 	
 	public ClientHelper() {
+		users.add(new ClientUser("lol2", "fuck", "127.0.0.1", ServerStateService.PORT));
 	}
 	
 	private static void debugLog(String msg) {
@@ -58,25 +54,20 @@ public class ClientHelper {
 	public void runClient() {
 		
 		String inputFromServer;
-		String answerToServer;
-		String command;
-		String[] inputArray;
 		
-		int i;
 		String buffer;
-		
 		
 		while(running) {
 			
 			run:
-			for(ClientUser mailKonto : users) {
+			for(ClientUser localUser : users) {
 				
 				//Ausnullen zur Sicherheit
 				resetConnectionVars();
 				
 				//Verbindung zum Host herstellen
 				try {
-					socket = new Socket(mailKonto.host, mailKonto.port);
+					socket = new Socket(localUser.host, localUser.port);
 					outputStream = socket.getOutputStream();
 					inputStream = socket.getInputStream();
 					reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -84,10 +75,10 @@ public class ClientHelper {
 					
 					
 				} catch (UnknownHostException e) {
-					debugLog("Die Hostaddresse " + mailKonto.host + " konnte nicht aufgelöst werden");
+					debugLog("Die Hostaddresse " + localUser.host + " konnte nicht aufgelöst werden");
 					continue run;
 				} catch (IOException e) {
-					debugLog("Der Socket zu " + mailKonto.host + " konnte nicht erstellt werden");
+					debugLog("Der Socket zu " + localUser.host + " konnte nicht erstellt werden");
 					continue run;
 				}
 				
@@ -98,33 +89,33 @@ public class ClientHelper {
 					inputFromServer = recieve();
 					
 					if(inputFromServer.indexOf("+OK") != 0) {
-						debugLog("Mailserver von " + mailKonto.host + " lehnt eine Verbindung ab");
+						debugLog("Mailserver von " + localUser.host + " lehnt eine Verbindung ab");
 						terminateSession();
 						continue run;
 					}
 					
-					debugLog("POP3-Verbindung zu " + mailKonto.host + " wurde erfolgreich aufgebaut");
+					debugLog("POP3-Verbindung zu " + localUser.host + " wurde erfolgreich aufgebaut");
 					
 					//Schreibe "USER username" an den Server
-					send("USER " + mailKonto.user);
+					send("USER " + localUser.user);
 					
 					//Erwarte "+OK"
 					inputFromServer = recieve();
 					
 					if(inputFromServer.indexOf("+OK") != 0) {
-						debugLog("Der User " + mailKonto.user + " ist bei dem Server " + mailKonto.host + " nicht bekannt");
+						debugLog("Der User " + localUser.user + " ist bei dem Server " + localUser.host + " nicht bekannt");
 						terminateSession();
 						continue run;
 					}
 					
 					//Schreibe "PASS userpasswort" an den Server
-					send("PASS " + mailKonto.pw);
+					send("PASS " + localUser.pw);
 					
 					//Erwarte "+OK"
 					inputFromServer = recieve();
 					
 					if(inputFromServer.indexOf("+OK") != 0) {
-						debugLog("Das Passwort von " + mailKonto.user + " war falsch");
+						debugLog("Das Passwort von " + localUser.user + " war falsch");
 						terminateSession();
 						continue run;
 					}
@@ -137,11 +128,10 @@ public class ClientHelper {
 					inputFromServer = recieve();
 					
 					if(inputFromServer.indexOf("+OK") != 0) {
-						debugLog("Der Server " + mailKonto.host + " hat eine unbekannte Nachricht verschickt");
+						debugLog("Der Server " + localUser.host + " hat eine unbekannte Nachricht verschickt");
 						terminateSession();
 						continue run;
 					}
-					
 					
 					List<Integer> availableMessages = new ArrayList<Integer>();
 					
@@ -166,7 +156,7 @@ public class ClientHelper {
 						inputFromServer = recieve();
 						
 						if(!inputFromServer.startsWith(ServerCodes.OK)) {
-							debugLog("Fehler beim Auslesen von Nachricht Nummer " + messageNum + " vom Server " + mailKonto.host);
+							debugLog("Fehler beim Auslesen von Nachricht Nummer " + messageNum + " vom Server " + localUser.host);
 						}
 						else {
 							//Gefolgt vom Inhalt der Email in mehreren Zeilen
@@ -200,14 +190,14 @@ public class ClientHelper {
 					
 				
 				} catch (IOException e) {
-					debugLog("Fehler beim lesen oder schreiben zu " + mailKonto.host);
+					debugLog("Fehler beim lesen oder schreiben zu " + localUser.host);
 					continue run;
 				}
 			}
 			
 			try {
 				synchronized (this) {
-					this.wait(POPPERIOD);
+					this.wait(WAITMS);
 				}
 			} catch (InterruptedException e) {
 				debugLog("Client Thread konnte nicht bis zu Ende warten");
