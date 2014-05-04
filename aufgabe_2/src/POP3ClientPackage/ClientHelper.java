@@ -18,12 +18,11 @@ import POP3ServerPackage.ServerCodes;
 
 public class ClientHelper {
 	
-	private final static Logger logger = new Logger("Clientlog.txt");
+	private final static Logger logger = new Logger("clientlog.txt");
 	
 	private final int WAITMS = 30000;
 	
 	private Socket socket;
-	boolean running = true;
 	
 	private InputStream inputStream;
 	private OutputStream outputStream;
@@ -57,12 +56,11 @@ public class ClientHelper {
 		
 		String buffer;
 		
-		while(running) {
+		while(true) {
 			
 			run:
 			for(ClientUser localUser : users) {
 				
-				//Ausnullen zur Sicherheit
 				resetConnectionVars();
 				
 				//Verbindung zum Host herstellen
@@ -72,8 +70,6 @@ public class ClientHelper {
 					inputStream = socket.getInputStream();
 					reader = new BufferedReader(new InputStreamReader(inputStream));
 					writer = new DataOutputStream(outputStream);
-					
-					
 				} catch (UnknownHostException e) {
 					debugLog("Die Hostaddresse " + localUser.host + " konnte nicht aufgelöst werden");
 					continue run;

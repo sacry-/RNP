@@ -51,7 +51,7 @@ public class POP3ServerThread extends Thread {
     }
 
     public void run() {
-
+    	stream.sendToClient(ServerCodes.success("Server ready!"));
         if (authorization()) {
             transaction();
         }
