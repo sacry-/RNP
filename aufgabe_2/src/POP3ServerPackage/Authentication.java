@@ -14,7 +14,7 @@ import static POP3ServerPackage.POP3Server.logger;
  */
 public class Authentication {
 
-    private Account account = Account.valueOf(1);
+    private static final Account account = Account.valueOf(1);
     private String username;
     private String password;
     private ReadFcWriteFs stream;
@@ -33,8 +33,8 @@ public class Authentication {
         String line = "";
 
         line = stream.readFromClient();
-        logger.write("Server gelesen: " + line);
-        System.out.println("DAS IST DIE LINE: " + line);
+        // logger.write("Server gelesen: " + line);
+        // System.out.println("DAS IST DIE LINE: " + line);
 
 
         Scanner scanner = new Scanner(line);

@@ -16,8 +16,9 @@ import java.util.*;
 public class StorageService {
 
     private static String base = new File(System.getProperty("user.dir")).getAbsolutePath()
-            + "/src/ServicePackage/storage/email/";
-
+            //+ "/src/ServicePackage/storage/email/";
+    		+ "\\src\\ServicePackage\\storage\\email\\";
+    
     private StorageService() {
     }
 
