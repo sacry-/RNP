@@ -3,6 +3,7 @@ package ServicePackage;
 import DataTypePackage.Account;
 import DataTypePackage.Email;
 import POP3ServerPackage.Authentication;
+import POP3ServerPackage.ServerCodes;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -17,7 +18,7 @@ public class StorageService {
     
 	// take the upper one, if you're unix. else take the bottom one for windows.
     // private static final String SL = "/";
-    private static final String SL = "\\";
+    private static final String SL = ServerCodes.FILE_SEPARATOR;
     
     //+ "/src/ServicePackage/storage/email/";
     private static String base = new File(System.getProperty("user.dir")).getAbsolutePath()
@@ -199,8 +200,7 @@ public class StorageService {
     }
 
     public static void main(String[] args) {
-    	System.out.println(checkIfExists(Account.valueOf(1)));
-    	System.out.println(new File(base + Account.valueOf(1).uid().toString()));
+    	System.out.println("<" + SL + ">");
     }
 
 

@@ -28,7 +28,7 @@ public class ServerCodes {
     public static final String MULTI_LINE_TERMINATOR = NEWLINE + TERMINTATOR;
     public static final String NULL_STRING = "";
     public static final String WIDESPACE = " ";
-    public static final String PATH_SEPARATOR = System.getProperty("path.separator");
+    public static final String FILE_SEPARATOR = System.getProperty("file.separator");
     public static final String OCTATS = "Octats";
     public static final String SIGN_OFF = "QUIT - SIGNED OFF";
 
