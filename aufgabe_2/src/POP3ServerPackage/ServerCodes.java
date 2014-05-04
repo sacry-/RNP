@@ -62,6 +62,10 @@ public class ServerCodes {
         }
         return NULL_STRING;
     }
+    
+    public static String mkRequest(String cmd, String msg) {
+    	return (cmd + WIDESPACE + msg);
+    }
 
     public static String success(String message) {
         return (OK + WIDESPACE + message);
