@@ -64,34 +64,29 @@ public class ClientHelper {
 				writer = new DataOutputStream(outputStream);
 
 				// connection successful?
-				if (responseWasFailure("Denied connection.")) continue;
+				if (responseFailure("Denied connection.")) continue;
 
 				// USER Authorisation
-				send(mkRequest(USER, localUser.user));
-				if (responseWasFailure("User was not found.")) continue;
+				if (reactionFailure(USER, localUser.user, "User was not found.")) continue;
 
 				// PASSWORD checking
-				send(mkRequest(PASS, localUser.pw));
-				if (responseWasFailure("Pasword was wrong.")) continue;
+				if (reactionFailure(PASS, localUser.pw, "Pasword was wrong.")) continue;
 
 				debugLog("Connection and authentication successful!");
 
 				// Ask for all Mails
-				send(LIST);
 				// Response is f.e.: +OK 14 messages 2343 octets
-				if (responseWasFailure("List command not regnized by server.")) continue;
-
+				if (react(LIST, "List command not regnized by server.")) continue;
+				
 				// builds the list of IDs form the remaining lines of the response.
-				List<Integer> mailIDs = makeMailIDsFromServerResponses();
-
+				List<Integer> mailIDs = makeMailIDs();
 				debugLog("Recieved mailIDs: " + mailIDs.toString());
 
 				// Request and Read all the mails.
 				for (Integer id : mailIDs) {
+					if (reactionFailure(RETR, id, "Mail not found on server.")) continue;
 					
-					send(mkRequest(RETR, id));
-					if (responseWasFailure("Mail not found on server.")) continue;
-					
+					// read conteents of mail
 					String content = readMail();
 					
 					// we could save the content somewhere now. but we're just
@@ -99,21 +94,36 @@ public class ClientHelper {
 					logger.write(content);
 				}
 				
+				// all work finished for this user :)
 				closeSession();
 			} catch (IOException e) {
 				debugLog("IOException during server Connection" + e.toString());
 			}
-		}// all users have been tried out now.
+		}
+		// all users have been tried out now.
 		
 		try {
-			Thread.sleep(WAITMS);
+			Thread.sleep(WAITMS);	// after 30 seconds
 		} catch (InterruptedException e) {
 			debugLog("Client waiting disturbed");
 		}
 		
-		runClient();	// after 30 seconds, repeat from beginning
+		runClient();	// repeat from beginning
 	}
 	
+	// pack together a request and its failure response into a single action. (a part of >>=)
+	// its two versions are for the difference in having or not having an arugment.
+	private boolean reactionFailure(String command, Object arg, String msgIfError) throws IOException {
+		send(mkRequest(command, arg));
+		boolean hasFailed = responseFailure(msgIfError);
+		return hasFailed;
+	}
+	private boolean react(String command, String msgIfError) throws IOException {
+		send(mkRequest(command));
+		boolean hasFailed = responseFailure(msgIfError);
+		return hasFailed;
+	}
+
 	// reads the lines containing the mail content until an "." appears
 	private String readMail() throws IOException {
 		StringBuilder content = new StringBuilder();
@@ -128,7 +138,7 @@ public class ClientHelper {
 	
 	// reads the lines containing mail IDs of the list command
 	// and returns a List of mailIDs.
-	private List<Integer> makeMailIDsFromServerResponses() throws IOException {
+	private List<Integer> makeMailIDs() throws IOException {
 		String serverResp = recieve();
 		List<Integer> mailIDs = new ArrayList<>();
 		// read all the mailIDs until the terminator has appeared.
@@ -145,7 +155,7 @@ public class ClientHelper {
 	// if an error message appeared, then we close connections and return true.
 	// else we return false. this captures a common error case pattern often
 	// occured in code.
-	private boolean responseWasFailure(String errMSG) throws IOException {
+	private boolean responseFailure(String errMSG) throws IOException {
 		if (!recieve().startsWith(OK)) {
 			debugLog(errMSG);
 			closeSession();
