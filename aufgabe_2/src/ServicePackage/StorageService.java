@@ -14,10 +14,15 @@ import java.util.*;
  * Created by Allquantor on 20.04.14.
  */
 public class StorageService {
-
+    
+	// take the upper one, if you're unix. else take the bottom one for windows.
+    // private static final String SL = "/";
+    private static final String SL = "\\";
+    
+    //+ "/src/ServicePackage/storage/email/";
     private static String base = new File(System.getProperty("user.dir")).getAbsolutePath()
-            //+ "/src/ServicePackage/storage/email/";
-    		+ "\\src\\ServicePackage\\storage\\email\\";
+    		+ SL + "src" + SL + "ServicePackage" + SL + "storage" + SL + "email" + SL;	// change this depending on the operating system.
+    
     
     private StorageService() {
     }
@@ -62,7 +67,7 @@ public class StorageService {
     }
 
     private static String stripMailName(File f) {
-        int lastIndex = f.toString().lastIndexOf("/");
+        int lastIndex = f.toString().lastIndexOf(SL);
         return f.toString().substring(lastIndex + 1);
     }
 
@@ -86,7 +91,7 @@ public class StorageService {
     public static boolean saveEmail(Account a, String user, String pw, Email email) {
         if (checkIfExists(a, user, pw)) {
             try {
-                String path = base + getUserPath(a, user, pw) + "/" + email.uidl() + ".txt";
+                String path = base + getUserPath(a, user, pw) + SL + email.uidl() + ".txt";
                 new File(path).createNewFile();
                 PrintWriter printWriter = new PrintWriter(path, "UTF-8");
                 printWriter.println(email.content());
@@ -101,7 +106,7 @@ public class StorageService {
 
     public static List<File> getEmailsForUser(Account a, String user, String pw) {
         if (checkIfExists(a, user, pw))
-            return filterFiles(getFilesFromDirectory(a.uid().toString() + "/" + user + "_" + pw));
+            return filterFiles(getFilesFromDirectory(a.uid().toString() + SL + user + "_" + pw));
         return null;
     }
 
@@ -152,7 +157,7 @@ public class StorageService {
     }
 
     private static String getUserPath(Account a, String user, String pw) {
-        return a.uid().toString() + "/" + user + "_" + pw;
+        return a.uid().toString() + SL + user + "_" + pw;
     }
 
     private static List<File> getFilesFromDirectory(String dir) {
@@ -165,7 +170,7 @@ public class StorageService {
 
     public static boolean checkIfExists(Account a, String user, String pw) {
         if (checkIfExists(a))
-            return new File(base + a.uid().toString() + "/" + user + "_" + pw).isDirectory();
+            return new File(base + a.uid().toString() + SL + user + "_" + pw).isDirectory();
         return false;
     }
 
@@ -193,7 +198,8 @@ public class StorageService {
     }
 
     public static void main(String[] args) {
-
+    	System.out.println(checkIfExists(Account.valueOf(1)));
+    	System.out.println(new File(base + Account.valueOf(1).uid().toString()));
     }
 
 
