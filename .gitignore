@@ -8,6 +8,9 @@
 
 *.class
 
+clientlog.txt
+serverlog.txt
+
 # Package Files #
 *.jar
 *.war
