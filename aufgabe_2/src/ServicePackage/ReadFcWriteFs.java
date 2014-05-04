@@ -1,5 +1,6 @@
 package ServicePackage;
 
+import POP3ServerPackage.POP3Server;
 import POP3ServerPackage.ServerCodes;
 
 import java.io.IOException;
@@ -33,6 +34,7 @@ public class ReadFcWriteFs {
     public String readFromClient() {
         Scanner scanner = new java.util.Scanner(inputStream).useDelimiter("\n");
         String erg = scanner.hasNext() ? scanner.next() : "";
+        POP3Server.logger.write("Incoming:  " + erg);
         return erg;
     }
 
@@ -42,6 +44,7 @@ public class ReadFcWriteFs {
                 byte[] byteArray = (message + "\n").getBytes("UTF-8");
                 outputStream.write(byteArray, 0, byteArray.length);
                 ServerStateService.debug(message);
+                POP3Server.logger.write("Outgoing: " + message);
             }
 
         } catch (Exception e) {
