@@ -7,14 +7,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import ServicePackage.Logger;
 import ServicePackage.ServerStateService;
 import POP3ClientPackage.ClientUser;
 import POP3ServerPackage.ServerCodes;
+import static POP3ServerPackage.ServerCodes.*;
 
 public class ClientHelper {
 	
@@ -33,7 +34,7 @@ public class ClientHelper {
 	private static final boolean DEBUGMODE = true;
 	
 	private final static List<ClientUser> users = new ArrayList();	// TODO: insert account
-	// TODO: insert ServerCodes.mkRequest(RETR, msgNo);
+	// TODO: insert mkRequest(RETR, msgNo);
 	// TODO: documenting comments
 	
 	public ClientHelper() {
@@ -63,30 +64,27 @@ public class ClientHelper {
 				
 				resetConnectionVars();
 				
-				//Verbindung zum Host herstellen
+				// Connect to host
 				try {
 					socket = new Socket(localUser.host, localUser.port);
 					outputStream = socket.getOutputStream();
 					inputStream = socket.getInputStream();
 					reader = new BufferedReader(new InputStreamReader(inputStream));
 					writer = new DataOutputStream(outputStream);
-				} catch (UnknownHostException e) {
-					debugLog("Die Hostaddresse " + localUser.host + " konnte nicht aufgelöst werden");
-					continue run;
-				} catch (IOException e) {
-					debugLog("Der Socket zu " + localUser.host + " konnte nicht erstellt werden");
+				} catch (Exception e) {
+					debugLog("Connection failure.");
 					continue run;
 				}
 				
 				
-				//Nachrichtenaustausch mit dem Server
+				// authorize with server
 				try {
 					//Erwarte nach Aufbau der Verbindung ein "+OK"
 					inputFromServer = recieve();
 					
-					if(inputFromServer.indexOf("+OK") != 0) {
-						debugLog("Mailserver von " + localUser.host + " lehnt eine Verbindung ab");
-						terminateSession();
+					if(!inputFromServer.startsWith("+OK")) {
+						debugLog("Denied connection.");
+						closeSession();
 						continue run;
 					}
 					
@@ -100,7 +98,7 @@ public class ClientHelper {
 					
 					if(inputFromServer.indexOf("+OK") != 0) {
 						debugLog("Der User " + localUser.user + " ist bei dem Server " + localUser.host + " nicht bekannt");
-						terminateSession();
+						closeSession();
 						continue run;
 					}
 					
@@ -112,7 +110,7 @@ public class ClientHelper {
 					
 					if(inputFromServer.indexOf("+OK") != 0) {
 						debugLog("Das Passwort von " + localUser.user + " war falsch");
-						terminateSession();
+						closeSession();
 						continue run;
 					}
 					
@@ -125,7 +123,7 @@ public class ClientHelper {
 					
 					if(inputFromServer.indexOf("+OK") != 0) {
 						debugLog("Der Server " + localUser.host + " hat eine unbekannte Nachricht verschickt");
-						terminateSession();
+						closeSession();
 						continue run;
 					}
 					
@@ -135,9 +133,10 @@ public class ClientHelper {
 					
 					//Solange entweder das erste Zeichen ungleich oder die beiden ersten Zeichen gleich Punkt sind
 					while(!inputFromServer.startsWith(".")) {
-						buffer = inputFromServer.split(" ")[0];			//Speicher den ersten Teilstring in den buffer
-						availableMessages.add(Integer.parseInt(buffer));//Parse den Buffer zu einem Integer und füge ihn zu den verfügbaren Nachrichten hinzu
-						
+						Scanner line = new Scanner(inputFromServer);
+						Integer msgId = Integer.parseInt(line.next());
+						line.close();
+						availableMessages.add(msgId);
 						inputFromServer = recieve();
 					}
 					
@@ -151,7 +150,7 @@ public class ClientHelper {
 						//Erwarte "+OK" vom Server
 						inputFromServer = recieve();
 						
-						if(!inputFromServer.startsWith(ServerCodes.OK)) {
+						if(!inputFromServer.startsWith(OK)) {
 							debugLog("Fehler beim Auslesen von Nachricht Nummer " + messageNum + " vom Server " + localUser.host);
 						}
 						else {
@@ -165,24 +164,13 @@ public class ClientHelper {
 								buffer += inputFromServer + "\n";
 							}
 							
-							logger.write("Read Mail: ");
+							// hier könnte man es dann lokal speicheren.
 							logger.write(buffer);
-							logger.write("====================================");
 							
-							/*Server.addMail(buffer, Server.getId());
-							
-							send("DELE " + messageNum);
-							inputFromServer = recieve();
-							
-							if(inputFromServer.indexOf("+OK") != 0) {
-								debugLog("Fehler beim Löschen von Nachricht Nummer " + messageNum + " vom Server " + mailKonto.host);
-								continue mailSchleife;
-							}
-							*/
 						}
 					}
 					
-					terminateSession();
+					closeSession();
 					
 				
 				} catch (IOException e) {
@@ -192,33 +180,25 @@ public class ClientHelper {
 			}
 			
 			try {
-				synchronized (this) {
-					this.wait(WAITMS);
-				}
+				this.wait(WAITMS);
 			} catch (InterruptedException e) {
 				debugLog("Client Thread konnte nicht bis zu Ende warten");
 			}
-			
 		}
-			
 	}
-	
-	
-	
-	
 	private void send(String request) throws IOException {
 		writer.writeBytes(request + "\n");
-		debugLog("Req: " + request);
+		debugLog("Reqqust line :" + request);
 	}
 	
 	private String recieve() throws IOException {
 		String request = reader.readLine();
-		debugLog("Resp: " + request);
+		debugLog("Resp line    :" + request);
 		return request;
 	}
 	
-	private void terminateSession() throws IOException {
-		send("QUIT");
+	private void closeSession() throws IOException {
+		send(QUIT);
 		recieve();
         try {
             if (!socket.isClosed()) {
