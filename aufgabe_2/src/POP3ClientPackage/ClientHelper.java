@@ -2,16 +2,19 @@ package POP3ClientPackage;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
 import ServicePackage.Logger;
 import POP3ClientPackage.ClientUser;
 
-public class ClientHelper extends Thread {
+public class ClientHelper {
 	
 	private final static Logger logger = new Logger("Clientlog.txt");
 	
@@ -23,7 +26,6 @@ public class ClientHelper extends Thread {
 	private final char SPACE = ' ';
 	private final int POPPERIOD = 30000;
 	
-	private int name;
 	private Socket socket;
 	boolean running = true;
 	
@@ -33,13 +35,25 @@ public class ClientHelper extends Thread {
 	private BufferedReader br;
 	private DataOutputStream da;
 	
-	private final static List<ClientUser> users = new ArrayList();	// TODO:
+	private static final boolean DEBUGMODE = true;
 	
-	public ClientHelper(int name) {
-		this.name = name;
+	private final static List<ClientUser> users = new ArrayList();	// TODO: insert account
+	// TODO: insert ServerCodes.mkRequest(RETR, msgNo);
+	
+	public ClientHelper() {
 	}
 	
-	public void run() {
+	private static void debugLog(String msg) {
+		if(DEBUGMODE)
+			System.out.println(msg);
+		logger.write(msg);
+	}
+	
+	public static void main(String[] args) {
+		new ClientHelper().runClient();
+	}
+	
+	public void runClient() {
 		
 		String inputFromServer;
 		String answerToServer;
@@ -53,7 +67,7 @@ public class ClientHelper extends Thread {
 		while(running) {
 			
 			run:
-			for(ClientUser mailKonto : Server.mailKontoList()) {
+			for(ClientUser mailKonto : users) {
 				
 				//Ausnullen zur Sicherheit
 				socket = null;
@@ -62,7 +76,7 @@ public class ClientHelper extends Thread {
 				
 				//Verbindung zum Host herstellen
 				try {
-					socket = new Socket(mailKonto.host, mailKonto.port());
+					socket = new Socket(mailKonto.host, mailKonto.port);
 					outputStream = socket.getOutputStream();
 					inputStream = socket.getInputStream();
 					
@@ -72,12 +86,10 @@ public class ClientHelper extends Thread {
 					
 					
 				} catch (UnknownHostException e) {
-					log.newWarning("Die Hostaddresse " + mailKonto.host + " konnte nicht aufgelöst werden");
-					System.out.println("Die Hostaddresse " + mailKonto.host + " konnte nicht aufgelöst werden");
+					debugLog("Die Hostaddresse " + mailKonto.host + " konnte nicht aufgelöst werden");
 					continue run;
 				} catch (IOException e) {
-					log.newWarning("Der Socket zu " + mailKonto.host + " konnte nicht erstellt werden");
-					System.out.println("Der Socket zu " + mailKonto.host + " konnte nicht erstellt werden");
+					debugLog("Der Socket zu " + mailKonto.host + " konnte nicht erstellt werden");
 					continue run;
 				}
 				
@@ -88,14 +100,12 @@ public class ClientHelper extends Thread {
 					inputFromServer = readFromServer();
 					
 					if(inputFromServer.indexOf("+OK") != 0) {
-						log.newWarning("Mailserver von " + mailKonto.host + " lehnt eine Verbindung ab");
-						System.out.println("Mailserver von " + mailKonto.host + " lehnt eine Verbindung ab");
+						debugLog("Mailserver von " + mailKonto.host + " lehnt eine Verbindung ab");
 						terminateSession();
 						continue run;
 					}
 					
-					log.newInfo("POP3-Verbindung zu " + mailKonto.host + " wurde erfolgreich aufgebaut");
-					System.out.println("POP3-Verbindung zu " + mailKonto.host + " wurde erfolgreich aufgebaut");
+					debugLog("POP3-Verbindung zu " + mailKonto.host + " wurde erfolgreich aufgebaut");
 					
 					//Schreibe "USER username" an den Server
 					writeToServer("USER " + mailKonto.user);
@@ -104,21 +114,19 @@ public class ClientHelper extends Thread {
 					inputFromServer = readFromServer();
 					
 					if(inputFromServer.indexOf("+OK") != 0) {
-						log.newWarning("Der User " + mailKonto.user + " ist bei dem Server " + mailKonto.host + " nicht bekannt");
-						System.out.println("Der User " + mailKonto.user + " ist bei dem Server " + mailKonto.host + " nicht bekannt");
+						debugLog("Der User " + mailKonto.user + " ist bei dem Server " + mailKonto.host + " nicht bekannt");
 						terminateSession();
 						continue run;
 					}
 					
 					//Schreibe "PASS userpasswort" an den Server
-					writeToServer("PASS " + mailKonto.passwort());
+					writeToServer("PASS " + mailKonto.pw);
 					
 					//Erwarte "+OK"
 					inputFromServer = readFromServer();
 					
 					if(inputFromServer.indexOf("+OK") != 0) {
-						log.newWarning("Das Passwort von " + mailKonto.user + " war falsch");
-						System.out.println("Das Passwort von " + mailKonto.user + " war falsch");
+						debugLog("Das Passwort von " + mailKonto.user + " war falsch");
 						terminateSession();
 						continue run;
 					}
@@ -131,8 +139,7 @@ public class ClientHelper extends Thread {
 					inputFromServer = readFromServer();
 					
 					if(inputFromServer.indexOf("+OK") != 0) {
-						log.newWarning("Der Server " + mailKonto.host + " hat eine unbekannte Nachricht verschickt");
-						System.out.println("Der Server " + mailKonto.host + " hat eine unbekannte Nachricht verschickt");
+						debugLog("Der Server " + mailKonto.host + " hat eine unbekannte Nachricht verschickt");
 						terminateSession();
 						continue run;
 					}
@@ -143,9 +150,7 @@ public class ClientHelper extends Thread {
 					inputFromServer = readFromServer();
 					
 					//Solange entweder das erste Zeichen ungleich oder die beiden ersten Zeichen gleich Punkt sind
-					while(/*inputFromServer.charAt(0) == '.' && inputFromServer.charAt(1) == '.' 
-							|| */inputFromServer.indexOf('.') != 0) {
-						
+					while(inputFromServer.indexOf('.') != 0) {
 						buffer = inputFromServer.split(" ")[0];			//Speicher den ersten Teilstring in den buffer
 						availableMessages.add(Integer.parseInt(buffer));//Parse den Buffer zu einem Integer und füge ihn zu den verfügbaren Nachrichten hinzu
 						
@@ -164,8 +169,7 @@ public class ClientHelper extends Thread {
 						inputFromServer = readFromServer();
 						
 						if(inputFromServer.indexOf("+OK") != 0) {
-							log.newWarning("Fehler beim Auslesen von Nachricht Nummer " + messageNum + " vom Server " + mailKonto.host);
-							System.out.println("Fehler beim Auslesen von Nachricht Nummer " + messageNum + " vom Server " + mailKonto.host);
+							debugLog("Fehler beim Auslesen von Nachricht Nummer " + messageNum + " vom Server " + mailKonto.host);
 							continue mailSchleife;
 						}
 						
@@ -187,8 +191,7 @@ public class ClientHelper extends Thread {
 						inputFromServer = readFromServer();
 						
 						if(inputFromServer.indexOf("+OK") != 0) {
-							log.newWarning("Fehler beim Löschen von Nachricht Nummer " + messageNum + " vom Server " + mailKonto.host);
-							System.out.println("Fehler beim Lölschen von Nachricht Nummer " + messageNum + " vom Server " + mailKonto.host);
+							debugLog("Fehler beim Löschen von Nachricht Nummer " + messageNum + " vom Server " + mailKonto.host);
 							continue mailSchleife;
 						}
 					}
@@ -197,8 +200,7 @@ public class ClientHelper extends Thread {
 					
 				
 				} catch (IOException e) {
-					log.newWarning("Fehler beim lesen oder schreiben zu " + mailKonto.host);
-					System.out.println("Fehler beim lesen oder schreiben zu " + mailKonto.host);
+					debugLog("Fehler beim lesen oder schreiben zu " + mailKonto.host);
 					continue run;
 				}
 			}
@@ -208,8 +210,7 @@ public class ClientHelper extends Thread {
 					this.wait(POPPERIOD);
 				}
 			} catch (InterruptedException e) {
-				log.newWarning("Client Thread konnte nicht bis zu Ende warten");
-				System.out.println("Client Thread konnte nicht bis zu Ende warten");
+				debugLog("Client Thread konnte nicht bis zu Ende warten");
 			}
 			
 		}
@@ -221,20 +222,27 @@ public class ClientHelper extends Thread {
 	
 	private void writeToServer(String request) throws IOException {
 		da.writeBytes(request + "\n");
-		logger.write("Req: " + request);
-		System.out.println("Req: " + request);
+		debugLog("Req: " + request);
 	}
 	
 	private String readFromServer() throws IOException {
 		String request = br.readLine();
-		logger.write("Resp: " + request);
-		System.out.println("Resp: " + request);
+		debugLog("Resp: " + request);
 		return request;
 	}
 	
 	private void terminateSession() throws IOException {
-		writeToServer("QUIT");	//Beende die Sitzung mit dem Server
-		readFromServer();		//Lese das "+OK" aus
+		writeToServer("QUIT");
+		readFromServer();
+        try {
+            if (!socket.isClosed()) {
+            	socket.shutdownInput();
+            	socket.shutdownOutput();
+            	socket.close();
+            }
+        } catch (IOException e) {
+        	debugLog("Closing Connection unsucccessful.");
+        }
 	}
 	
 	private boolean terminition(String message) {
