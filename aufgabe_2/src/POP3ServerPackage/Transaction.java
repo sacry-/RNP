@@ -2,6 +2,7 @@ package POP3ServerPackage;
 
 import java.util.Map;
 import java.util.Set;
+import static POP3ServerPackage.ServerCodes.*;
 
 /**
  * Created by Allquantor on 20.04.14.
@@ -20,23 +21,23 @@ class Transaction {
 
     String quit() {
         mailbox.quitAndSaveChanges();
-        return ServerCodes.success(ServerCodes.SIGN_OFF);
+        return success(SIGN_OFF);
     }
 
 
     String stat() {
         StringBuilder sb = new StringBuilder();
         sb.append(mailbox.getEmailCount());
-        sb.append(ServerCodes.WIDESPACE);
+        sb.append(WIDESPACE);
         sb.append(mailbox.getTotalEmailSize());
-        sb.append(ServerCodes.WIDESPACE);
-        sb.append(ServerCodes.OCTATS);
+        sb.append(WIDESPACE);
+        sb.append(OCTATS);
 
-        return ServerCodes.success(String.valueOf(sb));
+        return success(String.valueOf(sb));
     }
 
     String noop() {
-        return ServerCodes.success(ServerCodes.NOOP);
+        return success(NOOP);
     }
 
     String rset() {
@@ -48,12 +49,13 @@ class Transaction {
         String content = mailbox.getEmailValue(secondPart);
         StringBuilder sb = new StringBuilder();
 
-        if (!content.equals(ServerCodes.NULL_STRING)) {
+        if (!content.equals(NULL_STRING)) {
             sb.append(list(secondPart));
+            sb.append(NEWLINE);
             sb.append(content);
-            sb.append(ServerCodes.MULTI_LINE_TERMINATOR);
+            sb.append(MULTI_LINE_TERMINATOR);
         } else {
-            sb.append(ServerCodes.fail("NO SUCH MESSAGE"));
+            sb.append(fail("NO SUCH MESSAGE"));
         }
         return String.valueOf(sb);
     }
@@ -71,9 +73,9 @@ class Transaction {
 
     String dele(int messageID) {
         if (mailbox.markDeleted(messageID)) {
-            return ServerCodes.success("MESSAGE:" + messageID + " DELETED");
+            return success("MESSAGE:" + messageID + " DELETED");
         } else {
-            return ServerCodes.fail("NO SUCH MESSAGE OR ALREADY DELETED");
+            return fail("NO SUCH MESSAGE OR ALREADY DELETED");
         }
     }
 
@@ -82,7 +84,7 @@ class Transaction {
     }
 
     String uidl() {
-        return ServerCodes.success(fromInfoMap(mailbox.getInboxUIDLs()));
+        return success(fromInfoMap(mailbox.getInboxUIDLs()));
     }
 
 
@@ -90,29 +92,29 @@ class Transaction {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append(ServerCodes.NEWLINE);
+        sb.append(NEWLINE);
         Set<Integer> keys = mapsen.keySet();
         int size = mapsen.keySet().size();
         int i = 1;
         for (int key : keys) {
             sb.append(key);
-            sb.append(ServerCodes.WIDESPACE);
+            sb.append(WIDESPACE);
             sb.append(mapsen.get(key));
             if(i != size){	//dont add a newline after the last one
-            	sb.append(ServerCodes.NEWLINE);
+            	sb.append(NEWLINE);
             }
             i += 1;
         }
-        sb.append(ServerCodes.MULTI_LINE_TERMINATOR);
+        sb.append(MULTI_LINE_TERMINATOR);
         return String.valueOf(sb);
     }
 
     private String fromInfoMapWithKey(int key, Map<Integer, ?> mapsen) {
         StringBuilder sb = new StringBuilder();
         if (!mapsen.containsKey(key)) {
-            sb.append(ServerCodes.fail("MESSAGE WITH ID:" + key + " DOES NOT EXIST"));
+            sb.append(fail("MESSAGE WITH ID:" + key + " DOES NOT EXIST"));
         } else {
-            sb.append(ServerCodes.success(key + ServerCodes.WIDESPACE + mapsen.get(key)));
+            sb.append(success(key + WIDESPACE + mapsen.get(key)));
         }
         return String.valueOf(sb);
     }

@@ -17,198 +17,169 @@ import POP3ClientPackage.ClientUser;
 import static POP3ServerPackage.ServerCodes.*;
 
 public class ClientHelper {
-	
+
 	private final static Logger logger = new Logger("clientlog.txt");
-	
-	private final int WAITMS = 30000;
-	
+
 	private Socket socket;
-	
+
 	private InputStream inputStream;
 	private OutputStream outputStream;
-	
+
 	private BufferedReader reader;
 	private DataOutputStream writer;
-	
+
 	private static final boolean DEBUGMODE = true;
-	
-	private final static List<ClientUser> users = new ArrayList();	// TODO: insert account
-	// TODO: insert mkRequest(RETR, msgNo);
+	private final int WAITMS = 30000;
+
+	private final static List<ClientUser> users = new ArrayList<ClientUser>();
+
 	// TODO: documenting comments
-	
+
 	public ClientHelper() {
-		users.add(new ClientUser("lol2", "fuck", "127.0.0.1", ServerStateService.PORT));
+		users.add(new ClientUser("lol2", "fuck", "127.0.0.1",
+				ServerStateService.PORT));
 	}
-	
+
 	private static void debugLog(String msg) {
-		if(DEBUGMODE)
+		if (DEBUGMODE)
 			System.out.println(msg);
 		logger.write(msg);
 	}
-	
+
 	public static void main(String[] args) {
 		new ClientHelper().runClient();
 	}
-	
+
 	public void runClient() {
+		// bei all diesen try-catches wäre Either Error oder Maybe Monad nett...
 		
-		String serverResp;
-		
-		String buffer;
-		
-		while(true) {
-			
-			run:
-			for(ClientUser localUser : users) {
-				
-				resetConnectionVars();
-				
-				// Connect to host
-				try {
-					socket = new Socket(localUser.host, localUser.port);
-					outputStream = socket.getOutputStream();
-					inputStream = socket.getInputStream();
-					reader = new BufferedReader(new InputStreamReader(inputStream));
-					writer = new DataOutputStream(outputStream);
-				} catch (Exception e) {
-					debugLog("Connection failure.");
-					continue;	// skip to next user
-				}
-				
-				
-				// authorize with server
-				try {
-					serverResp = recieve();
-					if(failureResponse(serverResp)) {
-						debugLog("Denied connection.");
-						closeSession();
-						continue;
-					}
-					
-					debugLog("Connection established.");
-					
-					// USER Authorisation
-					send(mkRequest(USER, localUser.user));
-					serverResp = recieve();
-					
-					if(failureResponse(serverResp)) {
-						debugLog("User was not found.");
-						closeSession();
-						continue;
-					}
-					
-					// PASSWORD checking
-					send(mkRequest(PASS, localUser.pw));
-					
-					//Erwarte "+OK"
-					serverResp = recieve();
-					
-					if(failureResponse(serverResp)) {
-						debugLog("Pasword was wrong.");
-						closeSession();
-						continue;
-					}
-					
-					
-					//Schreibe "LIST" an den Server
-					send("LIST");
-					
-					//Erwarten +OK gefolgt von einer i langen Aufzählung an "nachrichtenNummer nachrichtengröße"
-					serverResp = recieve();
-					
-					if(failureResponse(serverResp)) {
-						debugLog("Der Server " + localUser.host + " hat eine unbekannte Nachricht verschickt");
-						closeSession();
-						continue run;
-					}
-					
-					List<Integer> availableMessages = new ArrayList<Integer>();
-					
-					serverResp = recieve();
-					
-					//Solange entweder das erste Zeichen ungleich oder die beiden ersten Zeichen gleich Punkt sind
-					while(!serverResp.startsWith(TERMINTATOR)) {
-						Scanner line = new Scanner(serverResp);
-						Integer msgId = Integer.parseInt(line.next());
-						line.close();
-						availableMessages.add(msgId);
-						serverResp = recieve();
-					}
-					
-					
-					//Empfange alle E-Mails
-					mailSchleife:
-					for(int messageNum : availableMessages) {
-						//Schreibe "RETR messageNum" an den Server
-						send("RETR " + messageNum);
-						
-						//Erwarte "+OK" vom Server
-						serverResp = recieve();
-						
-						if(failureResponse(serverResp)) {
-							debugLog("Fehler beim Auslesen von Nachricht Nummer " + messageNum + " vom Server " + localUser.host);
-						}
-						else {
-							serverResp = recieve();
-							buffer = serverResp;
-							while (!serverResp.startsWith(TERMINTATOR)) {
-								serverResp = recieve();
-								buffer += serverResp + NEWLINE;
-							}
-							
-							// we could save the content somewhere now.
-							// but we're just simply writing it into a log.
-							logger.write(buffer);
-							
-						}
-					}
-					
-					closeSession();
-					
-				
-				} catch (IOException e) {
-					debugLog("Fehler beim lesen oder schreiben zu " + localUser.host);
-					continue run;
-				}
-			}
-			
+		for (ClientUser localUser : users) {
 			try {
-				Thread.sleep(WAITMS);
-			} catch (InterruptedException e) {
-				debugLog("Client waiting disturbed");
+				resetConnectionVars();
+				// Connect to host
+				socket = new Socket(localUser.host, localUser.port);
+				inputStream = socket.getInputStream();
+				outputStream = socket.getOutputStream();
+				reader = new BufferedReader(new InputStreamReader(inputStream));
+				writer = new DataOutputStream(outputStream);
+
+				// connection successful?
+				if (responseWasFailure("Denied connection.")) continue;
+
+				// USER Authorisation
+				send(mkRequest(USER, localUser.user));
+				if (responseWasFailure("User was not found.")) continue;
+
+				// PASSWORD checking
+				send(mkRequest(PASS, localUser.pw));
+				if (responseWasFailure("Pasword was wrong.")) continue;
+
+				debugLog("Connection and authentication successful!");
+
+				// Ask for all Mails
+				send(LIST);
+				// Response is f.e.: +OK 14 messages 2343 octets
+				if (responseWasFailure("List command not regnized by server.")) continue;
+
+				// builds the list of IDs form the remaining lines of the response.
+				List<Integer> mailIDs = makeMailIDsFromServerResponses();
+
+				debugLog("Recieved mailIDs: " + mailIDs.toString());
+
+				// Request and Read all the mails.
+				for (Integer id : mailIDs) {
+					
+					send(mkRequest(RETR, id));
+					if (responseWasFailure("Mail not found on server.")) continue;
+					
+					String content = readMail();
+					
+					// we could save the content somewhere now. but we're just
+					// simply writing it into a log.
+					logger.write(content);
+				}
+				
+				closeSession();
+			} catch (IOException e) {
+				debugLog("IOException during server Connection" + e.toString());
 			}
+		}// all users have been tried out now.
+		
+		try {
+			Thread.sleep(WAITMS);
+		} catch (InterruptedException e) {
+			debugLog("Client waiting disturbed");
 		}
+		
+		runClient();	// after 30 seconds, repeat from beginning
 	}
+	
+	// reads the lines containing the mail content until an "." appears
+	private String readMail() throws IOException {
+		StringBuilder content = new StringBuilder();
+		String serverResp = recieve();
+		content.append(serverResp);
+		while (!serverResp.startsWith(TERMINTATOR)) {
+			serverResp = recieve();
+			content.append(serverResp + NEWLINE);
+		}
+		return content.toString();
+	}
+	
+	// reads the lines containing mail IDs of the list command
+	// and returns a List of mailIDs.
+	private List<Integer> makeMailIDsFromServerResponses() throws IOException {
+		String serverResp = recieve();
+		List<Integer> mailIDs = new ArrayList<>();
+		// read all the mailIDs until the terminator has appeared.
+		while (!serverResp.startsWith(TERMINTATOR)) {
+			Scanner line = new Scanner(serverResp);
+			Integer msgId = Integer.parseInt(line.next());
+			mailIDs.add(msgId);
+			line.close();
+			serverResp = recieve();
+		}
+		return mailIDs;
+	}
+
+	// if an error message appeared, then we close connections and return true.
+	// else we return false. this captures a common error case pattern often
+	// occured in code.
+	private boolean responseWasFailure(String errMSG) throws IOException {
+		if (!recieve().startsWith(OK)) {
+			debugLog(errMSG);
+			closeSession();
+			return true;
+		}
+		return false;
+	}
+
 	private void send(String request) throws IOException {
 		writer.writeBytes(request + "\n");
 		debugLog("Reqqust line :" + request);
 	}
-	
+
 	private String recieve() throws IOException {
 		String request = reader.readLine();
 		debugLog("Resp line    :" + request);
 		return request;
 	}
-	
-	private boolean failureResponse(String resp) {
-		return !resp.startsWith(OK);
-	}
-	
+
 	private void closeSession() throws IOException {
 		send(QUIT);
-		recieve();
-        try {
-            if (!socket.isClosed()) {
-            	socket.shutdownInput();
-            	socket.shutdownOutput();
-            	socket.close();
-            }
-        } catch (IOException e) {
-        	debugLog("Closing Connection unsucccessful.");
-        }
+		recieve();	// get +OK response
+		try {
+			if (!socket.isClosed()) {
+				socket.shutdownInput();
+				socket.shutdownOutput();
+				socket.close();
+			}
+		} catch (IOException e) {
+			debugLog("Closing Connection unsucccessful.");
+		}
 	}
-	
-	private void resetConnectionVars(){
+
+	private void resetConnectionVars() {
 		socket = null;
 		outputStream = null;
 		inputStream = null;
@@ -216,4 +187,3 @@ public class ClientHelper {
 		writer = null;
 	}
 }
-
