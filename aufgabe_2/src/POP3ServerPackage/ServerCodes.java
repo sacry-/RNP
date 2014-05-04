@@ -24,7 +24,8 @@ public class ServerCodes {
     public static final String RSET = "RSET";
     public static final String UIDL = "UIDL";
     public static final String NEWLINE = System.getProperty("line.separator");
-    public static final String MULTI_LINE_TERMINATOR = NEWLINE + ".";
+    public static final String TERMINTATOR = ".";
+    public static final String MULTI_LINE_TERMINATOR = NEWLINE + TERMINTATOR;
     public static final String NULL_STRING = "";
     public static final String WIDESPACE = " ";
     public static final String PATH_SEPARATOR = System.getProperty("path.separator");

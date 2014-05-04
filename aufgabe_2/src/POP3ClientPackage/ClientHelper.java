@@ -14,6 +14,7 @@ import java.util.Scanner;
 import ServicePackage.Logger;
 import ServicePackage.ServerStateService;
 import POP3ClientPackage.ClientUser;
+import POP3ServerPackage.ServerCodes;
 import static POP3ServerPackage.ServerCodes.*;
 
 public class ClientHelper {
@@ -131,7 +132,7 @@ public class ClientHelper {
 					inputFromServer = recieve();
 					
 					//Solange entweder das erste Zeichen ungleich oder die beiden ersten Zeichen gleich Punkt sind
-					while(!inputFromServer.startsWith(".")) {
+					while(!inputFromServer.startsWith(TERMINTATOR)) {
 						Scanner line = new Scanner(inputFromServer);
 						Integer msgId = Integer.parseInt(line.next());
 						line.close();
@@ -158,7 +159,7 @@ public class ClientHelper {
 							buffer = inputFromServer;
 							
 							//Bis das Terminalsymbol, alleine in einer Zeile kommt
-							while (!terminition(inputFromServer)) {
+							while (!inputFromServer.startsWith(TERMINTATOR)) {
 								inputFromServer = recieve();
 								buffer += inputFromServer + "\n";
 							}
@@ -208,16 +209,6 @@ public class ClientHelper {
         } catch (IOException e) {
         	debugLog("Closing Connection unsucccessful.");
         }
-	}
-	
-	private boolean terminition(String message) {
-		if(message.length() > 1) {										//Wenn die Zeile länger als ein Zeichen ist
-			return message.charAt(0) == '.' && message.charAt(1) != '.';//	True -> wenn das erste Zeichen = '.' und das zweite Zeichen != '.' ist | False -> sonst
-		} else if(message.length() == 1) {								//Wenn die Nachricht genau ein Zeichen lang ist
-			return message.charAt(0) == '.';							//	True -> wenn das Zeichen = '.' ist | False -> sonst
-		} else {														//Sonst (Nachricht ist genau 0 Zeichen lang)
-			return false;												//	False
-		}
 	}
 	
 	private void resetConnectionVars(){
