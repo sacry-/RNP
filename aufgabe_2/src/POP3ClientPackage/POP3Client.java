@@ -1,98 +1,199 @@
 package POP3ClientPackage;
 
-import static POP3ServerPackage.POP3Server.logger;
-import POP3ServerPackage.ServerCodes;
-import ServicePackage.ServerStateService;
-
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
-import static java.lang.System.in;
+import ServicePackage.Logger;
+import ServicePackage.ServerStateService;
+import DataTypePackage.ClientUser;
+import static POP3ServerPackage.ServerCodes.*;
 
-/**
- * Created by Allquantor on 02.04.14.
- * RN_1
- */
 public class POP3Client {
 
-    //socket connection
-    static Socket serverSocket;
-    //send messages to server
-    static PrintWriter writerSendOut;
-    //read the input stream from server
-    static BufferedReader bufferResponse;
-    //read StdIn
-    static BufferedReader bufferStdInput;
+	private final static Logger logger = new Logger("clientlog.txt");
 
-    public static void initialize(String hostName, int port) {
+	private Socket socket;
 
-        try {
-            serverSocket = new Socket(hostName, port);
-            writerSendOut = new PrintWriter(serverSocket.getOutputStream(), true);
-            bufferResponse = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
-            bufferStdInput = new BufferedReader(new InputStreamReader(in)); //System.in)); => Same shit
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+	private InputStream inputStream;
+	private OutputStream outputStream;
 
+	private BufferedReader reader;
+	private DataOutputStream writer;
 
-    }
+	private static final boolean DEBUGMODE = true;
+	private final int WAITMS = 30000;
 
-    public static void runClient() {
-    	boolean keepAsking = true;
-        String answer = null;
-        try {
+	private final static List<ClientUser> users = new ArrayList<ClientUser>();
 
-            do {
-                // read the next input from the standart IO
-                String line = bufferStdInput.readLine();
+	// TODO: documenting comments
 
-                // out send the line to the server
-                writerSendOut.println(line);
-                writerSendOut.flush();
-                logger.write("Client:sent to server=" + line);
-                if(line.startsWith(ServerCodes.QUIT)) {
-                	keepAsking = false;
-                }
-                // we get a response from server
-                if(serverSocket.isClosed()) break;
-                answer = bufferResponse.readLine();
-                logger.write("Client:answer from server=" + answer);
+	public POP3Client() {
+		users.add(new ClientUser("lol2", "fuck", "127.0.0.1",
+				ServerStateService.PORT));
+	}
 
-                //check response message
-            } while (keepAsking);
-            closeConnection();
+	private static void debugLog(String msg) {
+		if (DEBUGMODE)
+			System.out.println(msg);
+		logger.write(msg);
+	}
 
+	public static void main(String[] args) {
+		new POP3Client().runClient();
+	}
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        logger.write("Connection succesfull refused");
-    }
+	public void runClient() {
+		// bei all diesen try-catches wäre Either Error oder Maybe Monad nett...
+		
+		for (ClientUser localUser : users) {
+			try {
+				resetConnectionVars();
+				// Connect to host
+				socket = new Socket(localUser.host, localUser.port);
+				inputStream = socket.getInputStream();
+				outputStream = socket.getOutputStream();
+				reader = new BufferedReader(new InputStreamReader(inputStream));
+				writer = new DataOutputStream(outputStream);
 
-    private static void closeConnection() {
-        try {
-            writerSendOut.close();
-            serverSocket.close();
-            bufferStdInput.close();
-            bufferResponse.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+				// connection successful?
+				if (responseFailure("Denied connection.")) continue;
 
-    }
+				// USER Authorisation
+				if (reactionFailure(USER, localUser.user, "User was not found.")) continue;
 
+				// PASSWORD checking
+				if (reactionFailure(PASS, localUser.pw, "Pasword was wrong.")) continue;
 
-    public static void main(String[] args) {
+				debugLog("Connection and authentication successful!");
 
-        String hostName = "127.0.0.1";
-        int port = ServerStateService.PORT;
-        initialize(hostName, port);
-        runClient();
+				// Ask for all Mails
+				// Response is f.e.: +OK 14 messages 2343 octets
+				if (react(LIST, "List command not regnized by server.")) continue;
+				
+				// builds the list of IDs form the remaining lines of the response.
+				List<Integer> mailIDs = makeMailIDs();
+				debugLog("Recieved mailIDs: " + mailIDs.toString());
 
-    }
+				// Request and Read all the mails.
+				for (Integer id : mailIDs) {
+					if (reactionFailure(RETR, id, "Mail not found on server.")) continue;
+					
+					// read conteents of mail
+					String content = readMail();
+					
+					// we could save the content somewhere now. but we're just
+					// simply writing it into a log.
+					logger.write(content);
+				}
+				
+				// all work finished for this user :)
+				closeSession();
+			} catch (IOException e) {
+				debugLog("IOException during server Connection" + e.toString());
+			}
+		}
+		// all users have been tried out now.
+		
+		try {
+			Thread.sleep(WAITMS);	// after 30 seconds
+		} catch (InterruptedException e) {
+			debugLog("Client waiting disturbed");
+		}
+		
+		runClient();	// repeat from beginning
+	}
+	
+	// pack together a request and its failure response into a single action. (a part of >>=)
+	// its two versions are for the difference in having or not having an arugment.
+	private boolean reactionFailure(String command, Object arg, String msgIfError) throws IOException {
+		send(mkRequest(command, arg));
+		boolean hasFailed = responseFailure(msgIfError);
+		return hasFailed;
+	}
+	private boolean react(String command, String msgIfError) throws IOException {
+		send(mkRequest(command));
+		boolean hasFailed = responseFailure(msgIfError);
+		return hasFailed;
+	}
 
+	// reads the lines containing the mail content until an "." appears
+	private String readMail() throws IOException {
+		StringBuilder content = new StringBuilder();
+		String serverResp = recieve();
+		content.append(serverResp);
+		while (!serverResp.startsWith(TERMINTATOR)) {
+			serverResp = recieve();
+			content.append(serverResp + NEWLINE);
+		}
+		return content.toString();
+	}
+	
+	// reads the lines containing mail IDs of the list command
+	// and returns a List of mailIDs.
+	private List<Integer> makeMailIDs() throws IOException {
+		String serverResp = recieve();
+		List<Integer> mailIDs = new ArrayList<>();
+		// read all the mailIDs until the terminator has appeared.
+		while (!serverResp.startsWith(TERMINTATOR)) {
+			Scanner line = new Scanner(serverResp);
+			Integer msgId = Integer.parseInt(line.next());
+			mailIDs.add(msgId);
+			line.close();
+			serverResp = recieve();
+		}
+		return mailIDs;
+	}
+
+	// if an error message appeared, then we close connections and return true.
+	// else we return false. this captures a common error case pattern often
+	// occured in code.
+	private boolean responseFailure(String errMSG) throws IOException {
+		if (!recieve().startsWith(OK)) {
+			debugLog(errMSG);
+			closeSession();
+			return true;
+		}
+		return false;
+	}
+
+	private void send(String request) throws IOException {
+		writer.writeBytes(request + "\n");
+		debugLog("Reqqust line :" + request);
+	}
+
+	private String recieve() throws IOException {
+		String request = reader.readLine();
+		debugLog("Resp line    :" + request);
+		return request;
+	}
+
+	private void closeSession() throws IOException {
+		send(QUIT);
+		recieve();	// get +OK response
+		try {
+			if (!socket.isClosed()) {
+				socket.shutdownInput();
+				socket.shutdownOutput();
+				socket.close();
+			}
+		} catch (IOException e) {
+			debugLog("Closing Connection unsucccessful.");
+		}
+	}
+
+	private void resetConnectionVars() {
+		socket = null;
+		outputStream = null;
+		inputStream = null;
+		reader = null;
+		writer = null;
+	}
 }
