@@ -21,7 +21,7 @@ public class StorageService {
     
     //+ "/src/ServicePackage/storage/email/";
     private static String base = new File(System.getProperty("user.dir")).getAbsolutePath()
-    		+ SL + "src" + SL + "ServicePackage" + SL + "storage" + SL + "email" + SL;	// change this depending on the operating system.
+    		+ SL + "aufgabe_2" + SL + "src" + SL + "ServicePackage" + SL + "storage" + SL + "email" + SL;	// change this depending on the operating system.
     
     
     private StorageService() {
@@ -43,7 +43,7 @@ public class StorageService {
         if (checkIfExists(auth.getAccount(), auth.username(), auth.password())) {
             try {
                 String userPath =  getUserPath(auth.getAccount(), auth.username(), auth.password());
-                String path = base + userPath + "/" + mail.uidl();
+                String path = base + userPath + SL + mail.uidl();
                 return new File(path).delete();
             } catch (Exception e) {
                 return false;
@@ -116,7 +116,7 @@ public class StorageService {
             List<File> resultSet = filterDirectories(getFilesFromDirectory(a.uid().toString()));
             for (File f : resultSet) {
                 String path = f.toString();
-                int l = path.lastIndexOf("/") + 1;
+                int l = path.lastIndexOf(SL) + 1;
                 String[] key_val = path.substring(l).split("_");
                 result.put(key_val[0], key_val[1]);
             }
@@ -130,7 +130,7 @@ public class StorageService {
         List<Account> result = new ArrayList<>();
         for (File f : resultSet) {
             String path = f.toString();
-            int l = path.lastIndexOf("/") + 1;
+            int l = path.lastIndexOf(SL) + 1;
             String id = path.substring(l);
             result.add(Account.valueOf(new Integer(id)));
         }
@@ -165,6 +165,7 @@ public class StorageService {
     }
 
     public static boolean checkIfExists(Account a) {
+    	System.out.println(new File(base + a.uid().toString()));
         return new File(base + a.uid().toString()).isDirectory();
     }
 
