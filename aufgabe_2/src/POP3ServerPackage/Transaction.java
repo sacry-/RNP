@@ -17,50 +17,52 @@ class Transaction {
     }
 
 
-    //finished
     String quit() {
         mailbox.quitAndSaveChanges();
-        return ServerCodes.success("QUIT Signed off.");
+        return ServerCodes.success(ServerCodes.SIGN_OFF);
     }
 
 
-    //liefert den Status der Mailbox,
-    // u. a. die Anzahl aller E-Mails im Postfach und deren Gesamtgröße (in Byte).
-
-    //finished
     String stat() {
-        return ServerCodes.success(mailbox.getEmailCount() + " " + mailbox.getTotalEmailSize() + "octats");
+        StringBuilder sb = new StringBuilder();
+        sb.append(mailbox.getEmailCount());
+        sb.append(ServerCodes.WIDESPACE);
+        sb.append(mailbox.getTotalEmailSize());
+        sb.append(ServerCodes.OCTATS);
+
+        return ServerCodes.success(String.valueOf(sb));
     }
 
-    //finished
     String noop() {
-        return ServerCodes.success("noop");
+        return ServerCodes.success(ServerCodes.NOOP);
     }
 
-    //finished
     String rset() {
         mailbox.unmarkAllMarked();
         return stat();
     }
 
-    //finished
     String retr(int secondPart) {
         String content = mailbox.getEmailValue(secondPart);
-        if (!content.equals(""))
-            return list(secondPart) + ServerCodes.NEWLINE + content + ServerCodes.MULTI_LINE_TERMINATOR;
-        return ServerCodes.fail("NO SUCH MESSAGE");
+        StringBuilder sb = new StringBuilder();
+
+        if (!content.equals(ServerCodes.NULL_STRING)) {
+            sb.append(list(secondPart));
+            sb.append(content);
+            sb.append(ServerCodes.MULTI_LINE_TERMINATOR);
+        } else {
+            sb.append(ServerCodes.fail("NO SUCH MESSAGE"));
+        }
+        return String.valueOf(sb);
     }
 
-    //finished
 
     String list(int key) {
         return fromInfoMapWithKey(key, mailbox.getInboxInfo());
     }
 
-    //finished
 
     String list() {
-
         return stat() + fromInfoMap(mailbox.getInboxInfo());
     }
 
@@ -69,7 +71,7 @@ class Transaction {
         if (mailbox.markDeleted(messageID)) {
             return ServerCodes.success("MESSAGE:" + messageID + " DELETED");
         } else {
-            return ServerCodes.fail("NO SUCH MESSAGE OR ALREADY DELEATED");
+            return ServerCodes.fail("NO SUCH MESSAGE OR ALREADY DELETED");
         }
     }
 
@@ -83,18 +85,27 @@ class Transaction {
 
 
     private String fromInfoMap(Map<Integer, ?> mapsen) {
-        String accu = "";
-        for (int k : mapsen.keySet()) {
-            accu += k + " " + mapsen.get(k) + ServerCodes.NEWLINE;
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(ServerCodes.NEWLINE);
+        for (int key : mapsen.keySet()) {
+            sb.append(key);
+            sb.append(ServerCodes.WIDESPACE);
+            sb.append(mapsen.get(key));
+            sb.append(ServerCodes.NEWLINE);
         }
-        return ServerCodes.NEWLINE + accu + ServerCodes.MULTI_LINE_TERMINATOR;
+        sb.append(ServerCodes.MULTI_LINE_TERMINATOR);
+        return String.valueOf(sb);
     }
 
     private String fromInfoMapWithKey(int key, Map<Integer, ?> mapsen) {
+        StringBuilder sb = new StringBuilder();
         if (!mapsen.containsKey(key)) {
-            return ServerCodes.fail("MESSAGE WITH ID:" + key + " DOES NOT EXIST");
+            sb.append(ServerCodes.fail("MESSAGE WITH ID:" + key + " DOES NOT EXIST"));
         } else {
-            return ServerCodes.success(key + " " + mapsen.get(key));
+            sb.append(ServerCodes.success(key + ServerCodes.WIDESPACE + mapsen.get(key)));
         }
+        return String.valueOf(sb);
     }
 }

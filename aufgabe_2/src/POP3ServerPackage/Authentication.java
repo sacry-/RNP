@@ -1,6 +1,5 @@
 package POP3ServerPackage;
 
-import static POP3ServerPackage.POP3Server.logger;
 import DataTypePackage.Account;
 import ServicePackage.MailboxImpl;
 import ServicePackage.ReadFcWriteFs;
@@ -8,16 +7,12 @@ import ServicePackage.StorageService;
 
 import java.util.Scanner;
 
+import static POP3ServerPackage.POP3Server.logger;
+
 /**
  * Created by Allquantor on 26.04.14.
  */
 public class Authentication {
-    // TODO: we need to insert locking user access here.
-    // once a authentication is authed, it has seated the user and
-    // no other may access it.
-    // we have to lock the user here.
-    // also, we have to write a unlock() methode here
-    // which is then called when the lient quits.
 
     private Account account = Account.valueOf(1);
     private String username;
@@ -31,10 +26,13 @@ public class Authentication {
     public Authentication(ReadFcWriteFs stream) {
         this.stream = stream;
     }
-
     public Mailbox getMailbox() {
         return new MailboxImpl(this);
     }
+
+
+
+
 
 
     public void waitForAuthentication() {
@@ -76,12 +74,12 @@ public class Authentication {
 
 
         Scanner scanner = new Scanner(line);
-        String cmd = getNextLine(scanner);
-        System.out.println("DAS IST CMD_1: " + cmd);
+        String cmd = ServerCodes.getNextLine(scanner);
+      //  System.out.println("DAS IST CMD_1: " + cmd);
 
         if (cmd.equals(ServerCodes.USER)) {
-            String user = getNextLine(scanner);
-            System.out.println("DAS IST CMD_2:  " + user);
+            String user = ServerCodes.getNextLine(scanner);
+          //  System.out.println("DAS IST CMD_2:  " + user);
             scanner.close();
             if (StorageService.checkIfExistst(account, user)) {
                 this.username = user;
@@ -90,14 +88,15 @@ public class Authentication {
             }
         }
 
-        //
-        if (cmd.equals("")) {
-            stream.sendToClient(ServerCodes.fail(""));
+
+        if (cmd.equals(ServerCodes.NULL_STRING)) {
+            stream.sendToClient(ServerCodes.fail(ServerCodes.NULL_STRING));
+
             return isAuthorized();
         }
 
         if (cmd.equals(ServerCodes.QUIT)) {
-            stream.sendToClient(ServerCodes.success("QUIT"));
+            stream.sendToClient(ServerCodes.QUIT);
             return false;
         }
         scanner.close();
@@ -108,10 +107,10 @@ public class Authentication {
     public boolean isPwd(String user) {
         String line = stream.readFromClient();
         Scanner scanner = new Scanner(line);
-        String cmd = getNextLine(scanner);
+        String cmd = ServerCodes.getNextLine(scanner);
 
         if (cmd.equals(ServerCodes.PASS)) {
-            String password = getNextLine(scanner);
+            String password = ServerCodes.getNextLine(scanner);
             scanner.close();
             System.out.println("Password:" + password);
             if (StorageService.checkIfExists(account, username, password)) {
@@ -128,12 +127,7 @@ public class Authentication {
         return isPwd(user);
     }
 
-    private String getNextLine(Scanner scanner) {
-        if (scanner.hasNext()) {
-            return scanner.next();
-        }
-        return "";
-    }
+
 
     public String username() {
         return username;
