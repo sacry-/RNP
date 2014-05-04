@@ -14,7 +14,6 @@ import java.util.Scanner;
 import ServicePackage.Logger;
 import ServicePackage.ServerStateService;
 import POP3ClientPackage.ClientUser;
-import POP3ServerPackage.ServerCodes;
 import static POP3ServerPackage.ServerCodes.*;
 
 public class ClientHelper {
@@ -53,7 +52,7 @@ public class ClientHelper {
 	
 	public void runClient() {
 		
-		String inputFromServer;
+		String serverResp;
 		
 		String buffer;
 		
@@ -73,45 +72,41 @@ public class ClientHelper {
 					writer = new DataOutputStream(outputStream);
 				} catch (Exception e) {
 					debugLog("Connection failure.");
-					continue run;
+					continue;	// skip to next user
 				}
 				
 				
 				// authorize with server
 				try {
-					//Erwarte nach Aufbau der Verbindung ein "+OK"
-					inputFromServer = recieve();
-					
-					if(!inputFromServer.startsWith("+OK")) {
+					serverResp = recieve();
+					if(failureResponse(serverResp)) {
 						debugLog("Denied connection.");
 						closeSession();
-						continue run;
+						continue;
 					}
 					
-					debugLog("POP3-Verbindung zu " + localUser.host + " wurde erfolgreich aufgebaut");
+					debugLog("Connection established.");
 					
-					//Schreibe "USER username" an den Server
-					send("USER " + localUser.user);
+					// USER Authorisation
+					send(mkRequest(USER, localUser.user));
+					serverResp = recieve();
 					
-					//Erwarte "+OK"
-					inputFromServer = recieve();
-					
-					if(inputFromServer.indexOf("+OK") != 0) {
-						debugLog("Der User " + localUser.user + " ist bei dem Server " + localUser.host + " nicht bekannt");
+					if(failureResponse(serverResp)) {
+						debugLog("User was not found.");
 						closeSession();
-						continue run;
+						continue;
 					}
 					
-					//Schreibe "PASS userpasswort" an den Server
-					send("PASS " + localUser.pw);
+					// PASSWORD checking
+					send(mkRequest(PASS, localUser.pw));
 					
 					//Erwarte "+OK"
-					inputFromServer = recieve();
+					serverResp = recieve();
 					
-					if(inputFromServer.indexOf("+OK") != 0) {
-						debugLog("Das Passwort von " + localUser.user + " war falsch");
+					if(failureResponse(serverResp)) {
+						debugLog("Pasword was wrong.");
 						closeSession();
-						continue run;
+						continue;
 					}
 					
 					
@@ -119,9 +114,9 @@ public class ClientHelper {
 					send("LIST");
 					
 					//Erwarten +OK gefolgt von einer i langen Aufzählung an "nachrichtenNummer nachrichtengröße"
-					inputFromServer = recieve();
+					serverResp = recieve();
 					
-					if(inputFromServer.indexOf("+OK") != 0) {
+					if(failureResponse(serverResp)) {
 						debugLog("Der Server " + localUser.host + " hat eine unbekannte Nachricht verschickt");
 						closeSession();
 						continue run;
@@ -129,15 +124,15 @@ public class ClientHelper {
 					
 					List<Integer> availableMessages = new ArrayList<Integer>();
 					
-					inputFromServer = recieve();
+					serverResp = recieve();
 					
 					//Solange entweder das erste Zeichen ungleich oder die beiden ersten Zeichen gleich Punkt sind
-					while(!inputFromServer.startsWith(TERMINTATOR)) {
-						Scanner line = new Scanner(inputFromServer);
+					while(!serverResp.startsWith(TERMINTATOR)) {
+						Scanner line = new Scanner(serverResp);
 						Integer msgId = Integer.parseInt(line.next());
 						line.close();
 						availableMessages.add(msgId);
-						inputFromServer = recieve();
+						serverResp = recieve();
 					}
 					
 					
@@ -148,23 +143,21 @@ public class ClientHelper {
 						send("RETR " + messageNum);
 						
 						//Erwarte "+OK" vom Server
-						inputFromServer = recieve();
+						serverResp = recieve();
 						
-						if(!inputFromServer.startsWith(OK)) {
+						if(failureResponse(serverResp)) {
 							debugLog("Fehler beim Auslesen von Nachricht Nummer " + messageNum + " vom Server " + localUser.host);
 						}
 						else {
-							//Gefolgt vom Inhalt der Email in mehreren Zeilen
-							inputFromServer = recieve();
-							buffer = inputFromServer;
-							
-							//Bis das Terminalsymbol, alleine in einer Zeile kommt
-							while (!inputFromServer.startsWith(TERMINTATOR)) {
-								inputFromServer = recieve();
-								buffer += inputFromServer + "\n";
+							serverResp = recieve();
+							buffer = serverResp;
+							while (!serverResp.startsWith(TERMINTATOR)) {
+								serverResp = recieve();
+								buffer += serverResp + NEWLINE;
 							}
 							
-							// hier könnte man es dann lokal speicheren.
+							// we could save the content somewhere now.
+							// but we're just simply writing it into a log.
 							logger.write(buffer);
 							
 						}
@@ -195,6 +188,10 @@ public class ClientHelper {
 		String request = reader.readLine();
 		debugLog("Resp line    :" + request);
 		return request;
+	}
+	
+	private boolean failureResponse(String resp) {
+		return !resp.startsWith(OK);
 	}
 	
 	private void closeSession() throws IOException {
