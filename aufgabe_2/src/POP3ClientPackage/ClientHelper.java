@@ -13,6 +13,7 @@ import java.util.List;
 
 import ServicePackage.Logger;
 import POP3ClientPackage.ClientUser;
+import POP3ServerPackage.ServerCodes;
 
 public class ClientHelper {
 	
@@ -32,13 +33,14 @@ public class ClientHelper {
 	private InputStream inputStream;
 	private OutputStream outputStream;
 	
-	private BufferedReader br;
-	private DataOutputStream da;
+	private BufferedReader reader;
+	private DataOutputStream writer;
 	
 	private static final boolean DEBUGMODE = true;
 	
 	private final static List<ClientUser> users = new ArrayList();	// TODO: insert account
 	// TODO: insert ServerCodes.mkRequest(RETR, msgNo);
+	// TODO: documenting comments
 	
 	public ClientHelper() {
 	}
@@ -70,19 +72,15 @@ public class ClientHelper {
 			for(ClientUser mailKonto : users) {
 				
 				//Ausnullen zur Sicherheit
-				socket = null;
-				outputStream = null;
-				inputStream = null;
+				resetConnectionVars();
 				
 				//Verbindung zum Host herstellen
 				try {
 					socket = new Socket(mailKonto.host, mailKonto.port);
 					outputStream = socket.getOutputStream();
 					inputStream = socket.getInputStream();
-					
-					
-					br = new BufferedReader(new InputStreamReader(inputStream));
-					da = new DataOutputStream(outputStream);
+					reader = new BufferedReader(new InputStreamReader(inputStream));
+					writer = new DataOutputStream(outputStream);
 					
 					
 				} catch (UnknownHostException e) {
@@ -97,7 +95,7 @@ public class ClientHelper {
 				//Nachrichtenaustausch mit dem Server
 				try {
 					//Erwarte nach Aufbau der Verbindung ein "+OK"
-					inputFromServer = readFromServer();
+					inputFromServer = recieve();
 					
 					if(inputFromServer.indexOf("+OK") != 0) {
 						debugLog("Mailserver von " + mailKonto.host + " lehnt eine Verbindung ab");
@@ -108,10 +106,10 @@ public class ClientHelper {
 					debugLog("POP3-Verbindung zu " + mailKonto.host + " wurde erfolgreich aufgebaut");
 					
 					//Schreibe "USER username" an den Server
-					writeToServer("USER " + mailKonto.user);
+					send("USER " + mailKonto.user);
 					
 					//Erwarte "+OK"
-					inputFromServer = readFromServer();
+					inputFromServer = recieve();
 					
 					if(inputFromServer.indexOf("+OK") != 0) {
 						debugLog("Der User " + mailKonto.user + " ist bei dem Server " + mailKonto.host + " nicht bekannt");
@@ -120,10 +118,10 @@ public class ClientHelper {
 					}
 					
 					//Schreibe "PASS userpasswort" an den Server
-					writeToServer("PASS " + mailKonto.pw);
+					send("PASS " + mailKonto.pw);
 					
 					//Erwarte "+OK"
-					inputFromServer = readFromServer();
+					inputFromServer = recieve();
 					
 					if(inputFromServer.indexOf("+OK") != 0) {
 						debugLog("Das Passwort von " + mailKonto.user + " war falsch");
@@ -133,10 +131,10 @@ public class ClientHelper {
 					
 					
 					//Schreibe "LIST" an den Server
-					writeToServer("LIST");
+					send("LIST");
 					
 					//Erwarten +OK gefolgt von einer i langen Aufzählung an "nachrichtenNummer nachrichtengröße"
-					inputFromServer = readFromServer();
+					inputFromServer = recieve();
 					
 					if(inputFromServer.indexOf("+OK") != 0) {
 						debugLog("Der Server " + mailKonto.host + " hat eine unbekannte Nachricht verschickt");
@@ -147,15 +145,14 @@ public class ClientHelper {
 					
 					List<Integer> availableMessages = new ArrayList<Integer>();
 					
-					inputFromServer = readFromServer();
+					inputFromServer = recieve();
 					
 					//Solange entweder das erste Zeichen ungleich oder die beiden ersten Zeichen gleich Punkt sind
 					while(inputFromServer.indexOf('.') != 0) {
 						buffer = inputFromServer.split(" ")[0];			//Speicher den ersten Teilstring in den buffer
 						availableMessages.add(Integer.parseInt(buffer));//Parse den Buffer zu einem Integer und füge ihn zu den verfügbaren Nachrichten hinzu
 						
-						inputFromServer = readFromServer();
-						
+						inputFromServer = recieve();
 					}
 					
 					
@@ -163,36 +160,39 @@ public class ClientHelper {
 					mailSchleife:
 					for(int messageNum : availableMessages) {
 						//Schreibe "RETR messageNum" an den Server
-						writeToServer("RETR " + messageNum);
+						send("RETR " + messageNum);
 						
 						//Erwarte "+OK" vom Server
-						inputFromServer = readFromServer();
+						inputFromServer = recieve();
 						
-						if(inputFromServer.indexOf("+OK") != 0) {
+						if(!inputFromServer.startsWith(ServerCodes.OK)) {
 							debugLog("Fehler beim Auslesen von Nachricht Nummer " + messageNum + " vom Server " + mailKonto.host);
-							continue mailSchleife;
 						}
-						
-						//Gefolgt vom Inhalt der Email in mehreren Zeilen
-						inputFromServer = readFromServer();
-						buffer = inputFromServer;
-						
-						//Bis das Terminalsymbol, alleine in einer Zeile kommt
-						while (!terminition(inputFromServer)) {
-							inputFromServer = readFromServer();
-							buffer += inputFromServer + "\n";
-						}
-						
-						Server.addMail(buffer, Server.getId());
-						
-						writeToServer("DELE " + messageNum);
-					
-						
-						inputFromServer = readFromServer();
-						
-						if(inputFromServer.indexOf("+OK") != 0) {
-							debugLog("Fehler beim Löschen von Nachricht Nummer " + messageNum + " vom Server " + mailKonto.host);
-							continue mailSchleife;
+						else {
+							//Gefolgt vom Inhalt der Email in mehreren Zeilen
+							inputFromServer = recieve();
+							buffer = inputFromServer;
+							
+							//Bis das Terminalsymbol, alleine in einer Zeile kommt
+							while (!terminition(inputFromServer)) {
+								inputFromServer = recieve();
+								buffer += inputFromServer + "\n";
+							}
+							
+							logger.write("Read Mail: ");
+							logger.write(buffer);
+							logger.write("====================================");
+							
+							/*Server.addMail(buffer, Server.getId());
+							
+							send("DELE " + messageNum);
+							inputFromServer = recieve();
+							
+							if(inputFromServer.indexOf("+OK") != 0) {
+								debugLog("Fehler beim Löschen von Nachricht Nummer " + messageNum + " vom Server " + mailKonto.host);
+								continue mailSchleife;
+							}
+							*/
 						}
 					}
 					
@@ -220,20 +220,20 @@ public class ClientHelper {
 	
 	
 	
-	private void writeToServer(String request) throws IOException {
-		da.writeBytes(request + "\n");
+	private void send(String request) throws IOException {
+		writer.writeBytes(request + "\n");
 		debugLog("Req: " + request);
 	}
 	
-	private String readFromServer() throws IOException {
-		String request = br.readLine();
+	private String recieve() throws IOException {
+		String request = reader.readLine();
 		debugLog("Resp: " + request);
 		return request;
 	}
 	
 	private void terminateSession() throws IOException {
-		writeToServer("QUIT");
-		readFromServer();
+		send("QUIT");
+		recieve();
         try {
             if (!socket.isClosed()) {
             	socket.shutdownInput();
@@ -253,6 +253,14 @@ public class ClientHelper {
 		} else {														//Sonst (Nachricht ist genau 0 Zeichen lang)
 			return false;												//	False
 		}
+	}
+	
+	private void resetConnectionVars(){
+		socket = null;
+		outputStream = null;
+		inputStream = null;
+		reader = null;
+		writer = null;
 	}
 }
 
