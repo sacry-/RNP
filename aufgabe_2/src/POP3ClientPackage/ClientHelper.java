@@ -134,7 +134,7 @@ public class ClientHelper {
 					inputFromServer = recieve();
 					
 					//Solange entweder das erste Zeichen ungleich oder die beiden ersten Zeichen gleich Punkt sind
-					while(inputFromServer.indexOf('.') != 0) {
+					while(!inputFromServer.startsWith(".")) {
 						buffer = inputFromServer.split(" ")[0];			//Speicher den ersten Teilstring in den buffer
 						availableMessages.add(Integer.parseInt(buffer));//Parse den Buffer zu einem Integer und füge ihn zu den verfügbaren Nachrichten hinzu
 						

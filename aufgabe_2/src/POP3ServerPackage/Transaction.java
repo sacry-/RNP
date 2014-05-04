@@ -1,6 +1,7 @@
 package POP3ServerPackage;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Allquantor on 20.04.14.
@@ -28,6 +29,7 @@ class Transaction {
         sb.append(mailbox.getEmailCount());
         sb.append(ServerCodes.WIDESPACE);
         sb.append(mailbox.getTotalEmailSize());
+        sb.append(ServerCodes.WIDESPACE);
         sb.append(ServerCodes.OCTATS);
 
         return ServerCodes.success(String.valueOf(sb));
@@ -89,11 +91,17 @@ class Transaction {
         StringBuilder sb = new StringBuilder();
 
         sb.append(ServerCodes.NEWLINE);
-        for (int key : mapsen.keySet()) {
+        Set<Integer> keys = mapsen.keySet();
+        int size = mapsen.keySet().size();
+        int i = 1;
+        for (int key : keys) {
             sb.append(key);
             sb.append(ServerCodes.WIDESPACE);
             sb.append(mapsen.get(key));
-            sb.append(ServerCodes.NEWLINE);
+            if(i != size){	//dont add a newline after the last one
+            	sb.append(ServerCodes.NEWLINE);
+            }
+            i += 1;
         }
         sb.append(ServerCodes.MULTI_LINE_TERMINATOR);
         return String.valueOf(sb);
