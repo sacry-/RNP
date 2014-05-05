@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Class-Path: /Users/Allquantor/haw/RN_Aufgabe2/RNP/aufgabe_2/out/produc
+ tion/aufgabe_2/
+Main-Class: POP3ServerPackage.POP3Server
+

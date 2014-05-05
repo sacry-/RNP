@@ -22,7 +22,7 @@ public class StorageService {
     
     //+ "/src/ServicePackage/storage/email/";
     private static String base = new File(System.getProperty("user.dir")).getAbsolutePath()
-    		+ SL + "aufgabe_2" + SL + "src" + SL + "ServicePackage" + SL + "storage" + SL + "email" + SL;	// change this depending on the operating system.
+    	/*	+ SL + "aufgabe_2"*/ + SL + "src" + SL + "ServicePackage" + SL + "storage" + SL + "email" + SL;	// change this depending on the operating system.
     
     
     private StorageService() {
