@@ -23,7 +23,7 @@ public class ServerCodes {
     public static final String NOOP = "NOOP";
     public static final String RSET = "RSET";
     public static final String UIDL = "UIDL";
-    public static final String NEWLINE = System.getProperty("line.separator");
+    public static final String NEWLINE = "\r\n";
     public static final String TERMINTATOR = ".";
     public static final String MULTI_LINE_TERMINATOR = NEWLINE + TERMINTATOR;
     public static final String NULL_STRING = "";

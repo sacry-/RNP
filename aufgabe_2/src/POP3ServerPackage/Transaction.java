@@ -1,6 +1,7 @@
 package POP3ServerPackage;
 
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import static POP3ServerPackage.ServerCodes.*;
 
@@ -47,6 +48,9 @@ class Transaction {
 
     String retr(int secondPart) {
         String content = mailbox.getEmailValue(secondPart);
+
+        content = handleSingletonPoint(content);
+
         StringBuilder sb = new StringBuilder();
 
         if (!content.equals(NULL_STRING)) {
@@ -56,6 +60,19 @@ class Transaction {
             sb.append(MULTI_LINE_TERMINATOR);
         } else {
             sb.append(fail("NO SUCH MESSAGE"));
+        }
+        return String.valueOf(sb);
+    }
+
+    private String handleSingletonPoint(String content) {
+        Scanner lines = new Scanner(content);
+        StringBuilder sb = new StringBuilder();
+        while (lines.hasNextLine()){
+            String line = lines.nextLine();
+            if(line.startsWith(TERMINTATOR)){
+                line = "." + line;
+            }
+            sb.append(line + NEWLINE);
         }
         return String.valueOf(sb);
     }
