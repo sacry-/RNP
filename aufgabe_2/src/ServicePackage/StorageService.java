@@ -18,10 +18,10 @@ public class StorageService {
     
 	// take the upper one, if you're unix. else take the bottom one for windows.
     // private static final String SL = "/";
-    private static final String SL = ServerCodes.FILE_SEPARATOR;
+    public static final String SL = ServerCodes.FILE_SEPARATOR;
     
     //+ "/src/ServicePackage/storage/email/";
-    private static String base = new File(System.getProperty("user.dir")).getAbsolutePath()
+    public static String base = new File(System.getProperty("user.dir")).getAbsolutePath()
     	/*	+ SL + "aufgabe_2"*/ + SL + "src" + SL + "ServicePackage" + SL + "storage" + SL + "email" + SL;	// change this depending on the operating system.
     
     

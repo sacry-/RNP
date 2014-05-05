@@ -1,15 +1,11 @@
 package POP3ClientPackage;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import static ServicePackage.StorageService.*;
 
 import ServicePackage.Logger;
 import ServicePackage.ServerStateService;
@@ -36,8 +32,12 @@ public class POP3Client {
 	// TODO: documenting comments
 
 	public POP3Client() {
-		users.add(new ClientUser("lol2", "fuck", "127.0.0.1",
-				ServerStateService.PORT));
+		/*users.add(new ClientUser("lol2", "fuck", "127.0.0.1",
+				ServerStateService.PORT));*/
+        users.add(new ClientUser("bai4rnpJ", "Fyi1vzX7", "lab30.cpt.haw-hamburg.de",
+                ServerStateService.PORT));
+        users.add(new ClientUser("bai4rnpJ", "Fyi1vzX7", "lab31.cpt.haw-hamburg.de",
+                ServerStateService.PORT));
 	}
 
 	private static void debugLog(String msg) {
@@ -47,11 +47,15 @@ public class POP3Client {
 	}
 
 	public static void main(String[] args) {
-		new POP3Client().runClient();
+
+
+
+
+        new POP3Client().runClient();
 	}
 
 	public void runClient() {
-		// bei all diesen try-catches wäre Either Error oder Maybe Monad nett...
+		// bei all diesen try-catches wï¿½re Either Error oder Maybe Monad nett...
 		
 		for (ClientUser localUser : users) {
 			try {
@@ -89,9 +93,16 @@ public class POP3Client {
 					// read conteents of mail
 					String content = readMail();
 					
-					// we could save the content somewhere now. but we're just
-					// simply writing it into a log.
-					logger.write(content);
+					// save the content into a new file.
+                    String BASE = "/home/stud23/abl563/Downloads/aufgabe_2/src/ServicePackage/storage/email/1";
+
+                    try {
+                        PrintWriter writer = new PrintWriter(BASE + SL + localUser.user + "_" + localUser.pw + SL + getUIDL(content), "UTF-8");
+                        writer.println(content);
+                        writer.close();
+                    } catch (Exception e) {
+                        logger.write("Mail creation failed.");
+                    }
 				}
 				
 				// all work finished for this user :)
@@ -110,8 +121,21 @@ public class POP3Client {
 		
 		runClient();	// repeat from beginning
 	}
-	
-	// pack together a request and its failure response into a single action. (a part of >>=)
+
+    private String getUIDL(String content) {    // TODO:
+        Scanner lines = new Scanner(content);
+        String myID = "asasdasd";
+        while(lines.hasNextLine()) {
+            String line = lines.nextLine();
+            if(line.startsWith("Message-ID")){
+                myID = line.substring(line.indexOf('<')+1, line.indexOf('@'));
+            }
+        }
+        System.out.println("ID WAS:========================================" +myID);
+        return myID;
+    }
+
+    // pack together a request and its failure response into a single action. (a part of >>=)
 	// its two versions are for the difference in having or not having an arugment.
 	private boolean reactionFailure(String command, Object arg, String msgIfError) throws IOException {
 		send(mkRequest(command, arg));
@@ -128,10 +152,12 @@ public class POP3Client {
 	private String readMail() throws IOException {
 		StringBuilder content = new StringBuilder();
 		String serverResp = recieve();
-		content.append(serverResp);
-		while (!serverResp.startsWith(TERMINTATOR)) {
-			serverResp = recieve();
-			content.append(serverResp + NEWLINE);
+		while (!serverResp.equals(TERMINTATOR)) {
+            if(serverResp.startsWith(TERMINTATOR)){
+                serverResp = serverResp.substring(1);
+            }
+            content.append(serverResp + NEWLINE);
+            serverResp = recieve();
 		}
 		return content.toString();
 	}

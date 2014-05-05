@@ -31,7 +31,7 @@ public class POP3ServerThread extends Thread {
             transaction = new Transaction(authentication);
             return true;
         } else {
-            System.out.println("Not closed!");
+            // System.out.println("Not closed!");
             closeConnection();
             return false;
         }

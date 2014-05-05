@@ -32,7 +32,7 @@ public class ReadFcWriteFs {
     }
 
     public String readFromClient() {
-        Scanner scanner = new java.util.Scanner(inputStream).useDelimiter("\n");
+        Scanner scanner = new java.util.Scanner(inputStream).useDelimiter(ServerCodes.NEWLINE);
         String erg = scanner.hasNext() ? scanner.next() : "";
         POP3Server.logger.write("Incoming:  " + erg);
         return erg;
@@ -41,7 +41,7 @@ public class ReadFcWriteFs {
     public void sendToClient(String message) {
         try {
             if (!clientSocket.isClosed()) {
-                byte[] byteArray = (message + "\n").getBytes("UTF-8");
+                byte[] byteArray = (message + ServerCodes.NEWLINE).getBytes("UTF-8");
                 outputStream.write(byteArray, 0, byteArray.length);
                 ServerStateService.debug(message);
                 POP3Server.logger.write("Outgoing: " + message);
