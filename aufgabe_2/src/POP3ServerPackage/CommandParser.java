@@ -20,7 +20,7 @@ public class CommandParser {
         String arg = ServerCodes.getNextLine(scanner);
         scanner.close();
 
-        boolean argGiven = arg != NULL_STRING;
+        boolean argGiven = arg != EMPTY_STRING;
 
         if (cmd.equals(QUIT)) {
             return transaction.quit();
@@ -35,7 +35,6 @@ public class CommandParser {
             } catch (NumberFormatException e) {
                 return ServerCodes.failWithInvalidMsgNo(arg);
             }
-
         } else if (cmd.equals(DELE)) {
             try {
                 int i = Integer.parseInt(arg);
@@ -43,7 +42,6 @@ public class CommandParser {
             } catch (NumberFormatException e) {
                 return ServerCodes.failWithInvalidMsgNo(arg);
             }
-
         } else if (cmd.equals(NOOP)) {
             return transaction.noop();
         } else if (cmd.equals(RSET)) {
@@ -73,7 +71,7 @@ public class CommandParser {
     }
 
     private static String handleUIDL(boolean argGiven, String arg, Transaction transaction) {
-        if (argGiven) {    // if an argument if given, then parse and process it.
+        if (argGiven) {    // if an argument is given, then parse and process it.
             try {
                 int i = Integer.parseInt(arg);
                 return transaction.uidl(i);

@@ -7,8 +7,6 @@ import ServicePackage.StorageService;
 
 import java.util.Scanner;
 
-import static POP3ServerPackage.POP3Server.logger;
-
 /**
  * Created by Allquantor on 26.04.14.
  */
@@ -19,31 +17,23 @@ public class Authentication {
     private String password;
     private ReadFcWriteFs stream;
 
-    public Account getAccount(){
-        return this.account;
-    }
     public Authentication(ReadFcWriteFs stream) {
         this.stream = stream;
     }
+
     public Mailbox getMailbox() {
         return new MailboxImpl(this);
     }
 
-    public boolean authenticate() {
+    public boolean whileNotAuthenticatedState() {
         String line = "";
 
         line = stream.readFromClient();
-        // logger.write("Server gelesen: " + line);
-        // System.out.println("DAS IST DIE LINE: " + line);
-
-
         Scanner scanner = new Scanner(line);
         String cmd = ServerCodes.getNextLine(scanner);
-      //  System.out.println("DAS IST CMD_1: " + cmd);
 
         if (cmd.equals(ServerCodes.USER)) {
             String user = ServerCodes.getNextLine(scanner);
-          //  System.out.println("DAS IST CMD_2:  " + user);
             scanner.close();
             if (StorageService.checkIfExistst(account, user)) {
                 this.username = user;
@@ -52,11 +42,9 @@ public class Authentication {
             }
         }
 
-
-        if (cmd.equals(ServerCodes.NULL_STRING)) {
-            stream.sendToClient(ServerCodes.fail(ServerCodes.NULL_STRING));
-
-            return authenticate();
+        if (cmd.equals(ServerCodes.EMPTY_STRING)) {
+            stream.sendToClient(ServerCodes.fail(ServerCodes.EMPTY_STRING));
+            return whileNotAuthenticatedState();
         }
 
         if (cmd.equals(ServerCodes.QUIT)) {
@@ -65,7 +53,7 @@ public class Authentication {
         }
         scanner.close();
         stream.sendToClient(ServerCodes.fail(line));
-        return authenticate();
+        return whileNotAuthenticatedState();
     }
 
     public boolean isPwd(String user) {
@@ -91,7 +79,11 @@ public class Authentication {
         return isPwd(user);
     }
 
+    public Account getAccount() {
 
+
+        return this.account;
+    }
 
     public String username() {
         return username;

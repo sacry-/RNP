@@ -31,7 +31,6 @@ public class POP3Server {
             e.printStackTrace();
         }
         logger = new Logger("serverlog.txt");
-
     }
 
     private void intializeStreams() {
@@ -54,19 +53,17 @@ public class POP3Server {
     }
 
     public static void main(String[] args) {
-        POP3Server s = new POP3Server();
-        s.serverRun();
+        new POP3Server().serverRun();
     }
 
     private boolean readyToAcceptNewConnection() {
         return ServerStateService.isRunning();
     }
 
-    //close all sockets
     private void closeConnection() {
         System.out.println("Server: starting shutdown process");
-        ServerCodes.closeSocketAndHisStream(welcomeSocket);
-        ServerCodes.closeSocketAndHisStream(clientSocket);
+        ServerCodes.closeSocket(welcomeSocket);
+        ServerCodes.closeClientSocketAndStream(clientSocket);
         stream.closeConnection();
     }
 

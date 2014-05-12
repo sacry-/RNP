@@ -11,7 +11,7 @@ import static POP3ServerPackage.CommandParser.parseCommand;
  * Created by Allquantor on 20.04.14.
  */
 public class POP3ServerThread extends Thread {
-    Socket socket;
+    Socket clientSocket;
     private final int threadID;
     Transaction transaction;
     Authentication authentication;
@@ -19,27 +19,15 @@ public class POP3ServerThread extends Thread {
 
 
     public POP3ServerThread(Socket socket, ReadFcWriteFs stream, int threadID) {
-        this.socket = socket;
+        this.clientSocket = socket;
         this.threadID = threadID;
         this.stream = stream;
     }
 
-    private boolean authorization() {
-        authentication = new Authentication(stream);
-        boolean authed = authentication.authenticate();
-        if (authed) {
-            transaction = new Transaction(authentication);
-            return true;
-        } else {
-            // System.out.println("Not closed!");
-            closeConnection();
-            return false;
-        }
-    }
-
     private void transaction() {
-        if (!socket.isClosed() && socket.isConnected()) {
-            String input = null;
+        transaction = new Transaction(authentication);
+        if (!clientSocket.isClosed() && clientSocket.isConnected()) {
+            String input = "";
             do {
                 input = stream.readFromClient();
                 String out = parseCommand(input, transaction);
@@ -51,19 +39,21 @@ public class POP3ServerThread extends Thread {
     }
 
     public void run() {
-    	stream.sendToClient(ServerCodes.success("Server ready!"));
-        if (authorization()) {
+        stream.sendToClient(ServerCodes.success("Server ready!"));
+        authentication = new Authentication(stream);
+        boolean authenticated = authentication.whileNotAuthenticatedState();
+        if (authenticated) {
             transaction();
+        } else {
+            closeConnection();
         }
     }
 
     private void closeConnection() {
         stream.closeConnection();
-        ServerCodes.closeSocketAndHisStream(socket);
-        //decrease thread count
+        ServerCodes.closeClientSocketAndStream(clientSocket);
         ServerStateService.threadAnzahl--;
     }
-
 
     boolean isConnectionClosed(String resp) {
         return resp.startsWith(ServerCodes.QUIT);

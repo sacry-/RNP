@@ -23,33 +23,32 @@ public class ServerCodes {
     public static final String NOOP = "NOOP";
     public static final String RSET = "RSET";
     public static final String UIDL = "UIDL";
+    public static final String SIGN_OFF = "QUIT - SIGNED OFF";
+
     public static final String NEWLINE = "\r\n";
     public static final String TERMINTATOR = ".";
     public static final String MULTI_LINE_TERMINATOR = NEWLINE + TERMINTATOR;
-    public static final String NULL_STRING = "";
-    public static final String WIDESPACE = " ";
+    public static final String EMPTY_STRING = "";
+    public static final String WHITESPACE = " ";
     public static final String FILE_SEPARATOR = System.getProperty("file.separator");
     public static final String OCTATS = "Octats";
-    public static final String SIGN_OFF = "QUIT - SIGNED OFF";
 
     private ServerCodes() {
-
     }
 
-    public static void closeSocketAndHisStream(Socket s) {
+    public static void closeClientSocketAndStream(Socket client) {
         try {
-            if (!s.isClosed()) {
-                s.shutdownInput();
-                s.shutdownOutput();
-                s.close();
+            if (!client.isClosed()) {
+                client.shutdownInput();
+                client.shutdownOutput();
+                client.close();
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void closeSocketAndHisStream(ServerSocket welcomeSocket) {
+    public static void closeSocket(ServerSocket welcomeSocket) {
         try {
             welcomeSocket.close();
         } catch (IOException e) {
@@ -61,23 +60,23 @@ public class ServerCodes {
         if (scanner.hasNext()) {
             return scanner.next();
         }
-        return NULL_STRING;
+        return EMPTY_STRING;
     }
 
     public static String mkRequest(String cmd) {
     	return (cmd);
     }
     public static String mkRequest(String cmd, Object msg) {
-    	return (cmd + WIDESPACE + msg.toString());
+    	return (cmd + WHITESPACE + msg.toString());
     }
     
 
     public static String success(String message) {
-        return (OK + WIDESPACE + message);
+        return (OK + WHITESPACE + message);
     }
 
     public static String fail(String message) {
-        return (ERROR + WIDESPACE + message);
+        return (ERROR + WHITESPACE + message);
     }
 
     public static String failWithInvalidMsgNo(String arg) {

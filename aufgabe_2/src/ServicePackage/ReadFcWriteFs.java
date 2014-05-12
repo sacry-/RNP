@@ -49,15 +49,11 @@ public class ReadFcWriteFs {
 
         } catch (Exception e) {
             closeConnection();
-            // e.printStackTrace();
         }
     }
 
     public void closeConnection() {
-        ServerCodes.closeSocketAndHisStream(clientSocket);
-        // inputStream.close();
-        // outputStream.close();
-        //clientSocket.close();
+        ServerCodes.closeClientSocketAndStream(clientSocket);
     }
 
 }
