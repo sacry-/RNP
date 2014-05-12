@@ -19,7 +19,6 @@ class Transaction {
         mailbox = authentication.getMailbox();
     }
 
-
     String quit() {
         mailbox.quitAndSaveChanges();
         return success(SIGN_OFF);
@@ -29,9 +28,9 @@ class Transaction {
     String stat() {
         StringBuilder sb = new StringBuilder();
         sb.append(mailbox.getEmailCount());
-        sb.append(WIDESPACE);
+        sb.append(WHITESPACE);
         sb.append(mailbox.getTotalEmailSize());
-        sb.append(WIDESPACE);
+        sb.append(WHITESPACE);
         sb.append(OCTATS);
 
         return success(String.valueOf(sb));
@@ -50,10 +49,9 @@ class Transaction {
         String content = mailbox.getEmailValue(secondPart);
 
         content = handleSingletonPoint(content);
-
         StringBuilder sb = new StringBuilder();
 
-        if (!content.equals(NULL_STRING)) {
+        if (!content.equals(EMPTY_STRING)) {
             sb.append(list(secondPart));
             sb.append(NEWLINE);
             sb.append(content);
@@ -105,18 +103,17 @@ class Transaction {
     }
 
 
-    private String fromInfoMap(Map<Integer, ?> mapsen) {
-
+    private String fromInfoMap(Map<Integer, ?> inbox) {
         StringBuilder sb = new StringBuilder();
 
         sb.append(NEWLINE);
-        Set<Integer> keys = mapsen.keySet();
-        int size = mapsen.keySet().size();
+        Set<Integer> keys = inbox.keySet();
+        int size = inbox.keySet().size();
         int i = 1;
         for (int key : keys) {
             sb.append(key);
-            sb.append(WIDESPACE);
-            sb.append(mapsen.get(key));
+            sb.append(WHITESPACE);
+            sb.append(inbox.get(key));
             if(i != size){	//dont add a newline after the last one
             	sb.append(NEWLINE);
             }
@@ -126,12 +123,12 @@ class Transaction {
         return String.valueOf(sb);
     }
 
-    private String fromInfoMapWithKey(int key, Map<Integer, ?> mapsen) {
+    private String fromInfoMapWithKey(int key, Map<Integer, ?> inbox) {
         StringBuilder sb = new StringBuilder();
-        if (!mapsen.containsKey(key)) {
+        if (!inbox.containsKey(key)) {
             sb.append(fail("MESSAGE WITH ID:" + key + " DOES NOT EXIST"));
         } else {
-            sb.append(success(key + WIDESPACE + mapsen.get(key)));
+            sb.append(success(key + WHITESPACE + inbox.get(key)));
         }
         return String.valueOf(sb);
     }

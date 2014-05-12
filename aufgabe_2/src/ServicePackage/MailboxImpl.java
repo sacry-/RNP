@@ -73,7 +73,7 @@ public class MailboxImpl implements Mailbox {
         if (emails.containsKey(emailID)) {
             return emails.get(emailID).content();
         }
-        return ServerCodes.NULL_STRING;
+        return ServerCodes.EMPTY_STRING;
     }
 
     @Override

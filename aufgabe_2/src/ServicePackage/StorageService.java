@@ -80,31 +80,6 @@ public class StorageService {
         return false;
     }
 
-    public static boolean saveUser(Account a, String user, String pw) {
-        saveAccount(a);
-        if (!checkIfExists(a, user, pw)) {
-            new File(base + getUserPath(a, user, pw)).mkdirs();
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean saveEmail(Account a, String user, String pw, Email email) {
-        if (checkIfExists(a, user, pw)) {
-            try {
-                String path = base + getUserPath(a, user, pw) + SL + email.uidl() + ".txt";
-                new File(path).createNewFile();
-                PrintWriter printWriter = new PrintWriter(path, "UTF-8");
-                printWriter.println(email.content());
-                printWriter.close();
-            } catch (Exception e) {
-                return false;
-            }
-            return true;
-        }
-        return false;
-    }
-
     public static List<File> getEmailsForUser(Account a, String user, String pw) {
         if (checkIfExists(a, user, pw))
             return filterFiles(getFilesFromDirectory(a.uid().toString() + SL + user + "_" + pw));
@@ -124,37 +99,6 @@ public class StorageService {
             return result;
         }
         return null;
-    }
-
-    public static List<Account> getAllAccounts() {
-        List<File> resultSet = filterDirectories(getFilesFromDirectory(""));
-        List<Account> result = new ArrayList<>();
-        for (File f : resultSet) {
-            String path = f.toString();
-            int l = path.lastIndexOf(SL) + 1;
-            String id = path.substring(l);
-            result.add(Account.valueOf(new Integer(id)));
-        }
-        return result;
-    }
-
-    public static List<File> getAllEmails(Account a) {
-        if (checkIfExists(a))
-            return filterFiles(getFilesFromDirectory(a.uid().toString()));
-        return null;
-    }
-
-    private static List<File> walker(String directoryName, ArrayList<File> files) {
-        File directory = new File(directoryName);
-        File[] fList = directory.listFiles();
-        for (File file : fList) {
-            if (file.isFile()) {
-                files.add(file);
-            } else if (file.isDirectory()) {
-                walker(file.getAbsolutePath(), files);
-            }
-        }
-        return files;
     }
 
     private static String getUserPath(Account a, String user, String pw) {
@@ -197,6 +141,51 @@ public class StorageService {
                 l2.add(f);
         }
         return l2;
+    }
+
+    // deprecated
+    public static List<Account> getAllAccounts() {
+        List<File> resultSet = filterDirectories(getFilesFromDirectory(""));
+        List<Account> result = new ArrayList<>();
+        for (File f : resultSet) {
+            String path = f.toString();
+            int l = path.lastIndexOf(SL) + 1;
+            String id = path.substring(l);
+            result.add(Account.valueOf(new Integer(id)));
+        }
+        return result;
+    }
+
+    public static List<File> getAllEmails(Account a) {
+        if (checkIfExists(a))
+            return filterFiles(getFilesFromDirectory(a.uid().toString()));
+        return null;
+    }
+
+
+    public static boolean saveUser(Account a, String user, String pw) {
+        saveAccount(a);
+        if (!checkIfExists(a, user, pw)) {
+            new File(base + getUserPath(a, user, pw)).mkdirs();
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean saveEmail(Account a, String user, String pw, Email email) {
+        if (checkIfExists(a, user, pw)) {
+            try {
+                String path = base + getUserPath(a, user, pw) + SL + email.uidl() + ".txt";
+                new File(path).createNewFile();
+                PrintWriter printWriter = new PrintWriter(path, "UTF-8");
+                printWriter.println(email.content());
+                printWriter.close();
+            } catch (Exception e) {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     public static void main(String[] args) {
