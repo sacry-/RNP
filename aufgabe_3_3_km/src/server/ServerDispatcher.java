@@ -1,5 +1,7 @@
 package server;
 
+import client.ClientUtil;
+
 import java.util.*;
 
 public class ServerDispatcher extends Thread {
@@ -10,9 +12,9 @@ public class ServerDispatcher extends Thread {
         activeServerUsers.add(serverUser);
     }
 
-    public synchronized boolean contains(ServerUser serverUser){
-        for(ServerUser u : activeServerUsers)
-            if(u.name.equals(serverUser.name))
+    public synchronized boolean contains(ServerUser serverUser) {
+        for (ServerUser u : activeServerUsers)
+            if (u.name.equals(serverUser.name))
                 return true;
         return false;
     }
@@ -38,21 +40,25 @@ public class ServerDispatcher extends Thread {
         return message;
     }
 
-    private synchronized void sendMessageToAllUsers(String aMessage) {
+    private synchronized void sendInfoToAllUsers() {
         for (int i = 0; i < activeServerUsers.size(); i++) {
             ServerUser serverUser = activeServerUsers.get(i);
-            serverUser.sender.queueMessage(aMessage);
+            ArrayList<ServerUser> users = new ArrayList<ServerUser>(activeServerUsers);
+            users.remove(serverUser);
+            serverUser.sender.setList(users);
         }
     }
 
     public void run() {
         try {
-            while (true) {
-                String message = dequeMessage();
-                sendMessageToAllUsers(message);
+            Long timeStamp = System.currentTimeMillis();
+            while (!interrupted()) {
+                while ((System.currentTimeMillis() - timeStamp) <= 5000L) {
+                }
+                timeStamp = System.currentTimeMillis();
+                sendInfoToAllUsers();
             }
-        } catch (InterruptedException e) {
-            // Thread interrupted. Stop its execution
+        } catch (Exception e) {
         }
     }
 
