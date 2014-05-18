@@ -1,10 +1,5 @@
 package client;
 
-import server.Listener;
-import server.Sender;
-
-import java.net.Socket;
-
 public class ClientUser {
     public String name = null;
     public String host = null;

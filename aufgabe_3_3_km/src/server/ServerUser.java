@@ -10,6 +10,8 @@ public class ServerUser {
 
     @Override
     public String toString() {
-        return this.socket.getInetAddress().toString().substring(1) + ":" + this.socket.getPort() + " " + this.name;
+        if(this.name.equals("Matze"))
+            return this.socket.getInetAddress().toString().substring(1) + ":" + "50001" + " " + this.name;
+        return this.socket.getInetAddress().toString().substring(1) + ":" + "50002" + " " + this.name;
     }
 }

@@ -1,5 +1,7 @@
 package client;
 
+import server.ServerUtil;
+
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
@@ -9,8 +11,8 @@ import java.util.ArrayList;
  */
 public class TCPToServer extends Thread {
 
-    public static final String HOST = "localhost";
-    public static final int PORT = 50000;
+    public String host;
+    public int tcpPort;
 
     public volatile boolean isRunning = true;
     public volatile ArrayList<ClientUser> activeUsers = new ArrayList<ClientUser>();
@@ -20,12 +22,17 @@ public class TCPToServer extends Thread {
     Socket socket;
     Sender sender;
     Receiver receiver;
+    ClientGUI gui;
 
-    public TCPToServer() {
+    public TCPToServer(String host, int tcpPort, ClientGUI gui) {
+        this.host = host;
+        this.tcpPort = tcpPort;
+        this.gui = gui;
 
         try {
 
-            this.socket = new Socket(HOST, PORT);
+            this.socket = new Socket(host, tcpPort);
+
             in = new BufferedReader(
                     new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(
@@ -33,7 +40,7 @@ public class TCPToServer extends Thread {
 
         } catch (IOException e) {
             System.err.println("Can not establish connection to " +
-                    HOST + ":" + PORT);
+                    host + ":" + tcpPort);
             e.printStackTrace();
             System.exit(-1);
         }
@@ -102,16 +109,26 @@ public class TCPToServer extends Thread {
         }
 
         public void run() {
+            guiName();
             try {
-                BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+                BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
                 while (!isInterrupted()) {
-                    String message = in.readLine();
+                    String message = r.readLine();
                     out.println(message);
                     out.flush();
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 System.err.println("Connection to server broken: " + e.toString());
             }
+        }
+
+        private void guiName() {
+            String name = null;
+            while (name == null) {
+                name = gui.username;
+            }
+            out.println("NEW " + name);
+            out.flush();
         }
     }
 
