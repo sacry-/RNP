@@ -1,7 +1,5 @@
 package client;
 
-import server.ServerUtil;
-
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
@@ -22,12 +20,12 @@ public class TCPToServer extends Thread {
     Socket socket;
     Sender sender;
     Receiver receiver;
-    ClientGUI gui;
+    MyHandler handler;
 
-    public TCPToServer(String host, int tcpPort, ClientGUI gui) {
+    public TCPToServer(String host, int tcpPort, MyHandler handler) {
         this.host = host;
         this.tcpPort = tcpPort;
-        this.gui = gui;
+        this.handler = handler;
 
         try {
 
@@ -125,7 +123,11 @@ public class TCPToServer extends Thread {
         private void guiName() {
             String name = null;
             while (name == null) {
-                name = gui.username;
+                try {
+                    name = handler.nameHandler.getName();
+                } catch (InterruptedException e) {
+                    System.out.println(e);
+                }
             }
             out.println("NEW " + name);
             out.flush();
