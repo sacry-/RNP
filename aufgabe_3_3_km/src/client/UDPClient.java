@@ -4,7 +4,6 @@ import server.ServerUser;
 
 import java.io.*;
 import java.net.*;
-import java.util.Vector;
 
 /**
  * Created by sacry on 18/05/14.
@@ -12,8 +11,7 @@ import java.util.Vector;
 public class UDPClient extends Thread {
 
     private TCPToServer tcpServer;
-    private ClientGUI gui;
-    private MessageQueue messageQueue;
+    private MyHandler handler;
 
     private int udpPort;
     private volatile boolean isRunning = true;
@@ -21,18 +19,16 @@ public class UDPClient extends Thread {
     private Listener listener;
     private Sender sender;
 
-    public UDPClient(TCPToServer tcpServer, int udpPort, ClientGUI gui, MessageQueue messageQueue) {
+    public UDPClient(TCPToServer tcpServer, int udpPort, MyHandler handler, ClientGUI gui) {
         this.tcpServer = tcpServer;
-        this.gui = gui;
-        this.messageQueue = messageQueue;
-
+        this.handler = handler;
         this.udpPort = udpPort;
 
         sender = new Sender();
         sender.setDaemon(true);
         sender.start();
 
-        listener = new Listener();
+        listener = new Listener(gui);
         listener.setDaemon(true);
         listener.start();
 
@@ -58,7 +54,7 @@ public class UDPClient extends Thread {
             System.out.println("something started");
             while (isRunning) {
                 try {
-                    String input = messageQueue.dequeMessage();
+                    String input = handler.messageQueue.dequeMessage();
                     if (input == null)
                         break;
                     sendToAll(input);
@@ -91,11 +87,14 @@ public class UDPClient extends Thread {
 
     class Listener extends Thread {
 
-        public Listener() {
+        private ClientGUI gui;
+
+        public Listener(ClientGUI gui) {
+            this.gui = gui;
         }
 
         private synchronized void updateGUI(String msg) {
-            gui.chatBox.append(msg);
+            this.gui.chatBox.append(msg);
         }
 
         public void run() {

@@ -29,10 +29,10 @@ public class ClientGUI {
     JTextArea chatBox;
     JTextField usernameChooser;
     JFrame preFrame;
-    private MessageQueue messageQueue;
+    private MyHandler handler;
 
-    public ClientGUI(MessageQueue messageQueue) {
-        this.messageQueue = messageQueue;
+    public ClientGUI(MyHandler handler) {
+        this.handler = handler;
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -119,7 +119,7 @@ public class ClientGUI {
         newFrame.setVisible(true);
     }
 
-    public volatile String username = null;
+    private String username = null;
 
     private class sendMessageButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
@@ -130,7 +130,7 @@ public class ClientGUI {
             } else {
                 String message = "<" + username + ">:  " + messageBox.getText() + "\n";
                 chatBox.append(message);
-                messageQueue.queueMessage(message);
+                handler.messageQueue.queueMessage(message);
                 messageBox.setText("");
             }
             messageBox.requestFocusInWindow();
@@ -143,6 +143,7 @@ public class ClientGUI {
             if (username.length() < 1) {
                 System.out.println("No!");
             } else {
+                handler.nameHandler.updateName(username);
                 preFrame.setVisible(false);
                 display();
             }
