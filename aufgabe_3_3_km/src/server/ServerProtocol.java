@@ -66,7 +66,7 @@ public class ServerProtocol {
     }
 
     private static ArrayList<String> tokenize(String word) {
-        if (word == null || word == "") {
+        if (word == null || word.equals("")) {
             return new ArrayList<String>();
         }
         String[] tokens = word.trim().split(" ");
