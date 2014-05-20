@@ -3,6 +3,8 @@ package server;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by sacry on 16/05/14.
@@ -13,10 +15,22 @@ public class ServerProtocol {
     public static final String INFO = "INFO";
     public static final String BYE = "BYE";
     public static final String LIST = "LIST";
+    public static final String ERROR = "ERROR";
+    public static final String OK = "OK";
 
-    public static final String INVALID_NAME = "@@";
+    public static String error(String msg) {
+        return ERROR + " " + msg;
+    }
+
+    public static final Pattern INVALID_NAME = Pattern.compile("[a-zA-Z0-9]{1,20}");
 
     private ServerProtocol() {
+    }
+
+    public static boolean isNameValid(String name) {
+        if (name != null)
+            return INVALID_NAME.matcher(name).matches();
+        return false;
     }
 
     public static String newName(String command) {
@@ -24,11 +38,11 @@ public class ServerProtocol {
         if (tokens.size() == 2 && tokens.get(0).equals(NEW)) {
             String name = tokens.get(1);
             System.out.println("NAME " + name);
-            if (name != null && name != "" && name.length() < 20) {
+            if (isNameValid(name)) {
                 return name;
             }
         }
-        return INVALID_NAME;
+        return "";
     }
 
     public static String normalizeCommand(String command) {
@@ -40,7 +54,7 @@ public class ServerProtocol {
         if (cmd.equals(BYE)) {
             return BYE;
         }
-        return ServerUtil.error("invalid command");
+        return error("invalid command");
     }
 
     public static String info(List<ServerUser> userlist) {
