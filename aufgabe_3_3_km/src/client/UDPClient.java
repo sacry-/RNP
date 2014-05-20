@@ -61,9 +61,10 @@ public class UDPClient extends Thread {
                         break;
                     sendToAll(input);
                 } catch (Exception e) {
-                    System.out.println("Eroor sending datagram " + e);
+                    System.out.println("Error sending datagram " + e);
                 }
             }
+
         }
 
         private void sendToAll(String input) {
@@ -74,10 +75,6 @@ public class UDPClient extends Thread {
                     DatagramSocket theSocket = new DatagramSocket();
                     DatagramPacket theOutput = new DatagramPacket(data,
                             data.length, InetAddress.getByName(user.host), user.port);
-                    System.out.println(theOutput.getAddress());
-                    System.out.println(theOutput.getPort());
-                    System.out.println(theOutput.getData());
-                    System.out.println(user.port);
                     theSocket.send(theOutput);
                 } catch (Exception e) {
                     System.out.println("Error sending datagram " + e);
@@ -115,8 +112,6 @@ public class UDPClient extends Thread {
             } catch (IOException se) {
                 System.err.println("chat error " + se);
             }
-            this.interrupt();
-            System.exit(1);
         }
 
     }

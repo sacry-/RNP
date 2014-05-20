@@ -78,7 +78,6 @@ public class ClientGUI {
         public void actionPerformed(ActionEvent event) {
             if (messageBox.getText().length() > 1) {
                 String message = "<" + username + ">:  " + messageBox.getText() + "\n";
-                chatBox.append(message);
                 messageQueue.queueMessage(message);
                 messageBox.setText("");
             }
