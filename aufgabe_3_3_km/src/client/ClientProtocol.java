@@ -20,11 +20,11 @@ public class ClientProtocol {
     private ClientProtocol() {
     }
 
-    private static final Pattern INVALID_NAME = Pattern.compile("[a-zA-Z0-9]{1,20}");
+    private static final Pattern VALID_NAME = Pattern.compile("[a-zA-Z0-9]{1,20}");
 
     public static boolean isNameValid(String name) {
         if (name != null)
-            return INVALID_NAME.matcher(name).matches();
+            return VALID_NAME.matcher(name).matches();
         return false;
     }
 

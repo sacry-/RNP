@@ -22,14 +22,14 @@ public class ServerProtocol {
         return ERROR + " " + msg;
     }
 
-    public static final Pattern INVALID_NAME = Pattern.compile("[a-zA-Z0-9]{1,20}");
+    public static final Pattern VALID_NAME = Pattern.compile("[a-zA-Z0-9]{1,20}");
 
     private ServerProtocol() {
     }
 
     public static boolean isNameValid(String name) {
         if (name != null)
-            return INVALID_NAME.matcher(name).matches();
+            return VALID_NAME.matcher(name).matches();
         return false;
     }
 
