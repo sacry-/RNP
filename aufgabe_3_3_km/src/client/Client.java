@@ -16,7 +16,7 @@ public class Client {
     public static void main(String[] args) {
         String host = "localhost";
         int tcpPort = 50000;
-        int updPort = 50002;
+        int updPort = 50001;
         new Client(host, tcpPort, updPort);
     }
 }
