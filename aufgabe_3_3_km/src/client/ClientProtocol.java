@@ -2,11 +2,10 @@ package client;
 
 import utils.Tuple2;
 
-import java.io.IOException;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ListIterator;
+import java.util.regex.Pattern;
 
 /**
  * Created by sacry on 16/05/14.
@@ -15,8 +14,18 @@ public class ClientProtocol {
 
     public static final String BYE = "BYE";
     public static final String LIST = "LIST";
+    public static final String OK = "OK";
+    public static final String ERROR = "ERROR";
 
     private ClientProtocol() {
+    }
+
+    private static final Pattern INVALID_NAME = Pattern.compile("[a-zA-Z0-9]{1,20}");
+
+    public static boolean isNameValid(String name) {
+        if (name != null)
+            return INVALID_NAME.matcher(name).matches();
+        return false;
     }
 
     public static String normalizeCommand(String command) {
@@ -28,7 +37,10 @@ public class ClientProtocol {
         if (cmd.startsWith(BYE)) {
             return BYE;
         }
-        return ClientUtil.ERROR;
+        if (cmd.startsWith(OK)) {
+            return OK;
+        }
+        return ERROR;
     }
 
     public static ArrayList<ClientUser> list(String list) {
@@ -52,7 +64,7 @@ public class ClientProtocol {
     }
 
     private static ArrayList<String> tokenize(String word) {
-        if (word == null || word == "") {
+        if (word == null || word.equals("")) {
             return new ArrayList<String>();
         }
         String[] tokens = word.trim().split(" ");

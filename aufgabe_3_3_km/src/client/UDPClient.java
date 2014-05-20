@@ -11,17 +11,18 @@ import java.net.*;
 public class UDPClient extends Thread {
 
     private TCPToServer tcpServer;
-    private MyHandler handler;
+    private MessageQueue messageQueue;
+    private ClientGUI gui;
 
     private int udpPort;
-    private volatile boolean isRunning = true;
 
     private Listener listener;
     private Sender sender;
 
-    public UDPClient(TCPToServer tcpServer, int udpPort, MyHandler handler, ClientGUI gui) {
+    public UDPClient(TCPToServer tcpServer, int udpPort, MessageQueue messageQueue, ClientGUI gui) {
         this.tcpServer = tcpServer;
-        this.handler = handler;
+        this.messageQueue = messageQueue;
+        this.gui = gui;
         this.udpPort = udpPort;
 
         sender = new Sender();
@@ -40,7 +41,7 @@ public class UDPClient extends Thread {
     public void run() {
         // while deamons alive, will be dead if main thread on socket is killed
         while (sender.isAlive() && listener.isAlive()) {
-            if (!isRunning) // early callback
+            if (!gui.isRunning) // early callback
                 break;
         }
     }
@@ -52,9 +53,9 @@ public class UDPClient extends Thread {
 
         public void run() {
             System.out.println("something started");
-            while (isRunning) {
+            while (gui.isRunning) {
                 try {
-                    String input = handler.messageQueue.dequeMessage();
+                    String input = messageQueue.dequeMessage();
                     if (input == null)
                         break;
                     sendToAll(input);
@@ -100,7 +101,7 @@ public class UDPClient extends Thread {
         public void run() {
             try {
                 DatagramSocket ds = new DatagramSocket(udpPort);
-                while (isRunning) {
+                while (gui.isRunning) {
                     byte[] buffer = new byte[65507];
                     DatagramPacket dp = new DatagramPacket(buffer, buffer.length);
                     ds.receive(dp);
