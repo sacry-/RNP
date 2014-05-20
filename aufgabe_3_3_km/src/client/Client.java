@@ -6,16 +6,17 @@ package client;
 public class Client {
 
     public Client(String host, int tcpPort, int udpPort) {
-        MyHandler handler = new MyHandler();
-        ClientGUI gui = new ClientGUI(handler);
-        TCPToServer tcpServer = new TCPToServer(host, tcpPort, handler);
-        new UDPClient(tcpServer, udpPort, handler, gui); // gui needed to append items...
+        MessageQueue messageQueue = new MessageQueue();
+        NameHandler nameHandler = new NameHandler();
+        ClientGUI gui = new ClientGUI(messageQueue, nameHandler);
+        TCPToServer tcpServer = new TCPToServer(host, tcpPort, nameHandler, gui);
+        new UDPClient(tcpServer, udpPort, messageQueue, gui);
     }
 
     public static void main(String[] args) {
         String host = "localhost";
         int tcpPort = 50000;
-        int updPort = 50001;
+        int updPort = 50002;
         new Client(host, tcpPort, updPort);
     }
 }

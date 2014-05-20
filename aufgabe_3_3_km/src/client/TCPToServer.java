@@ -11,8 +11,6 @@ public class TCPToServer extends Thread {
 
     public String host;
     public int tcpPort;
-
-    public volatile boolean isRunning = true;
     public volatile ArrayList<ClientUser> activeUsers = new ArrayList<ClientUser>();
 
     BufferedReader in = null;
@@ -20,12 +18,14 @@ public class TCPToServer extends Thread {
     Socket socket;
     Sender sender;
     Receiver receiver;
-    MyHandler handler;
+    NameHandler nameHandler;
+    ClientGUI gui;
 
-    public TCPToServer(String host, int tcpPort, MyHandler handler) {
+    public TCPToServer(String host, int tcpPort, NameHandler nameHandler, ClientGUI gui) {
         this.host = host;
         this.tcpPort = tcpPort;
-        this.handler = handler;
+        this.nameHandler = nameHandler;
+        this.gui = gui;
 
         try {
 
@@ -58,8 +58,11 @@ public class TCPToServer extends Thread {
     public void run() {
         // while deamons alive, will be dead if main thread on socket is killed
         while (sender.isAlive() && receiver.isAlive()) {
-            if (!isRunning) // early callback
+            if (!gui.isRunning) { // early callback
+                out.println(ClientProtocol.BYE);
+                out.flush();
                 break;
+            }
         }
     }
 
@@ -86,16 +89,19 @@ public class TCPToServer extends Thread {
                         activeUsers.addAll(ClientProtocol.list(message));
                         System.out.println(activeUsers);
                     }
-                    if (response.equals(ClientUtil.ERROR)) {
+                    if (response.equals(ClientProtocol.ERROR)) {
                         System.out.println(message);
+                        nameHandler.response.updateResponse(response);
+                    }
+                    if (response.equals(ClientProtocol.OK)) {
+                        System.out.println(message);
+                        nameHandler.response.updateResponse(response);
                     }
 
                 }
             } catch (IOException e) {
                 System.err.println("Connection to server broken: " + e.toString());
             }
-
-            isRunning = false; // callback
         }
     }
 
@@ -118,19 +124,21 @@ public class TCPToServer extends Thread {
             } catch (Exception e) {
                 System.err.println("Connection to server broken: " + e.toString());
             }
+            out.println(ClientProtocol.BYE);
+            out.flush();
         }
 
         private void guiName() {
             String name = null;
-            while (name == null) {
+            while (!ClientProtocol.isNameValid(name)) {
                 try {
-                    name = handler.nameHandler.getName();
+                    name = nameHandler.name.getName();
+                    out.println("NEW " + name);
+                    out.flush();
                 } catch (InterruptedException e) {
                     System.out.println(e);
                 }
             }
-            out.println("NEW " + name);
-            out.flush();
         }
     }
 

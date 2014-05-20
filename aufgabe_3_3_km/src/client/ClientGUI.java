@@ -9,6 +9,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -29,10 +30,12 @@ public class ClientGUI {
     JTextArea chatBox;
     JTextField usernameChooser;
     JFrame preFrame;
-    private MyHandler handler;
+    private MessageQueue messageQueue;
+    private NameHandler nameHandler;
 
-    public ClientGUI(MyHandler handler) {
-        this.handler = handler;
+    public ClientGUI(MessageQueue messageQueue, NameHandler nameHandler) {
+        this.messageQueue = messageQueue;
+        this.nameHandler = nameHandler;
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -45,6 +48,45 @@ public class ClientGUI {
                 preDisplay();
             }
         });
+    }
+
+    public volatile boolean isRunning = true;
+    private String username = null;
+
+    private class enterServerButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            username = usernameChooser.getText();
+            nameHandler.name.updateName(username);
+            String response = null;
+            try {
+                response = nameHandler.response.getResponse();
+            } catch (InterruptedException e) {
+                System.out.println(e);
+            }
+            if (response.equals(ClientProtocol.OK)) {
+                preFrame.setVisible(false);
+                display();
+            } else {
+                usernameChooser.setText("");
+                usernameChooser.requestFocusInWindow();
+            }
+        }
+    }
+
+    private class sendMessageButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            if (messageBox.getText().length() < 1) {
+            } else if (messageBox.getText().equals(".clear")) {
+                chatBox.setText("Cleared all messages\n");
+                messageBox.setText("");
+            } else {
+                String message = "<" + username + ">:  " + messageBox.getText() + "\n";
+                chatBox.append(message);
+                messageQueue.queueMessage(message);
+                messageBox.setText("");
+            }
+            messageBox.requestFocusInWindow();
+        }
     }
 
     private void preDisplay() {
@@ -69,9 +111,8 @@ public class ClientGUI {
         prePanel.add(usernameChooser, preRight);
         preFrame.add(BorderLayout.CENTER, prePanel);
         preFrame.add(BorderLayout.SOUTH, enterServer);
-        preFrame.setSize(300, 300);
+        preFrame.setSize(400, 200);
         preFrame.setVisible(true);
-
     }
 
     private void display() {
@@ -117,38 +158,15 @@ public class ClientGUI {
         newFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         newFrame.setSize(470, 300);
         newFrame.setVisible(true);
-    }
-
-    private String username = null;
-
-    private class sendMessageButtonListener implements ActionListener {
-        public void actionPerformed(ActionEvent event) {
-            if (messageBox.getText().length() < 1) {
-            } else if (messageBox.getText().equals(".clear")) {
-                chatBox.setText("Cleared all messages\n");
-                messageBox.setText("");
-            } else {
-                String message = "<" + username + ">:  " + messageBox.getText() + "\n";
-                chatBox.append(message);
-                handler.messageQueue.queueMessage(message);
-                messageBox.setText("");
+        newFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(WindowEvent winEvt) {
+                isRunning = false;
+                try {
+                    Thread.sleep(2000L);
+                } catch (InterruptedException e) {
+                    System.out.println(e);
+                }
             }
-            messageBox.requestFocusInWindow();
-        }
+        });
     }
-
-    private class enterServerButtonListener implements ActionListener {
-        public void actionPerformed(ActionEvent event) {
-            username = usernameChooser.getText();
-            if (username.length() < 1) {
-                System.out.println("No!");
-            } else {
-                handler.nameHandler.updateName(username);
-                preFrame.setVisible(false);
-                display();
-            }
-        }
-
-    }
-
 }
