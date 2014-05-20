@@ -6,7 +6,6 @@ import java.util.*;
 public class Sender extends Thread {
 
     public Vector messageQueue = new Vector();
-    private SendInfoToUser infoUserTask;
 
     private ServerDispatcher serverDispatcher;
     private ServerUser serverUser;
@@ -17,11 +16,6 @@ public class Sender extends Thread {
         this.serverUser = serverUser;
         this.serverDispatcher = aServerDispatcher;
         this.out = out;
-        this.infoUserTask = new SendInfoToUser();
-    }
-
-    public synchronized void setList(ArrayList<ServerUser> activeUsers_) {
-        this.infoUserTask.setList(activeUsers_);
     }
 
     public synchronized void queueMessage(String aMessage) {
@@ -43,7 +37,6 @@ public class Sender extends Thread {
     }
 
     public void run() {
-        infoUserTask.start();
         try {
             while (!isInterrupted()) {
                 String message = dequeMessage();
@@ -59,36 +52,6 @@ public class Sender extends Thread {
         serverUser.sender.interrupt();
         serverUser.listener.interrupt();
         serverDispatcher.deleteClient(serverUser);
-    }
-
-    class SendInfoToUser extends Thread {
-
-        private ArrayList<ServerUser> activeUsers;
-
-        public void run() {
-            try {
-                while (!isInterrupted()) {
-                    if (activeUsers != null) {
-                        sendMessage(ServerProtocol.info(getActiveUsers()));
-                    }
-                }
-            } catch (InterruptedException e) {
-
-            }
-        }
-
-        public synchronized void setList(ArrayList<ServerUser> activeUsers_) {
-            activeUsers = activeUsers_;
-            notify();
-        }
-
-        private synchronized ArrayList<ServerUser> getActiveUsers() throws InterruptedException {
-            while (activeUsers == null)
-                wait();
-            ArrayList<ServerUser> users = new ArrayList<ServerUser>(activeUsers);
-            activeUsers = null;
-            return users;
-        }
     }
 
 }

@@ -1,7 +1,6 @@
 package server;
 
 import java.io.*;
-import java.util.List;
 
 public class Listener extends Thread {
     private ServerDispatcher serverDispatcher;
@@ -32,9 +31,7 @@ public class Listener extends Thread {
                     break;
                 }
                 if (response.startsWith(ServerProtocol.INFO)) {
-                    List<ServerUser> users = serverDispatcher.getAllActiveUsers();
-                    users.remove(serverUser);
-                    String activeUsers = ServerProtocol.info(users);
+                    String activeUsers = ServerProtocol.info(serverDispatcher.getAllActiveUsers());
                     serverUser.sender.queueMessage(activeUsers);
                 }
 
