@@ -24,7 +24,7 @@ public class Listener extends Thread {
                     break;
 
                 String response = ServerProtocol.normalizeCommand(message);
-                if (response.startsWith(ServerUtil.ERROR)) {
+                if (response.startsWith(ServerProtocol.ERROR)) {
                     serverUser.sender.queueMessage(response);
                 }
                 if (response.startsWith(ServerProtocol.BYE)) {

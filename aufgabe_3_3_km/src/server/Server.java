@@ -90,14 +90,15 @@ class TCPServer extends Thread {
         try {
             String input = in.readLine();
             String name = ServerProtocol.newName(input);
-            while (name.equals(ServerProtocol.INVALID_NAME)) {
-                out.println(ServerUtil.error("invalid command or name. Hint: NEW <name>"));
+            while (!ServerProtocol.isNameValid(name)) {
+                out.println(ServerProtocol.error("invalid command or name. Hint: NEW <name>"));
                 out.flush();
                 input = in.readLine();
                 name = ServerProtocol.newName(input);
             }
+            System.out.println(name);
             serverUser.name = name;
-            out.println(ServerUtil.OK);
+            out.println(ServerProtocol.OK);
             out.flush();
         } catch (IOException e) {
             System.out.println(e);
