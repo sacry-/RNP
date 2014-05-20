@@ -88,6 +88,7 @@ public class TCPToServer extends Thread {
                         activeUsers = new ArrayList<ClientUser>();
                         activeUsers.addAll(ClientProtocol.list(message));
                         System.out.println(activeUsers);
+                        updateGUI(activeUsers);
                     }
                     if (response.equals(ClientProtocol.ERROR)) {
                         System.out.println(message);
@@ -103,6 +104,15 @@ public class TCPToServer extends Thread {
                 System.err.println("Connection to server broken: " + e.toString());
             }
         }
+
+        private synchronized void updateGUI(ArrayList<ClientUser> aUsers) {
+            String users = "";
+            for (ClientUser user : aUsers) {
+                users += user.name + "\n";
+            }
+            if (gui.activeBox != null)
+                gui.activeBox.setText(users);
+        }
     }
 
     class Sender extends Thread {
@@ -114,6 +124,7 @@ public class TCPToServer extends Thread {
 
         public void run() {
             guiName();
+            new RequestInfoTask().start();
             try {
                 BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
                 while (!isInterrupted()) {
@@ -139,6 +150,29 @@ public class TCPToServer extends Thread {
                     System.out.println(e);
                 }
             }
+        }
+
+        class RequestInfoTask extends Thread {
+            public RequestInfoTask() {
+            }
+
+            @Override
+            public void run() {
+                try {
+                    Long timestamp = System.currentTimeMillis();
+                    while (!isInterrupted()) {
+                        while ((System.currentTimeMillis() - timestamp) <= 5000L) {
+                        }
+                        timestamp = System.currentTimeMillis();
+                        out.println(ClientProtocol.INFO);
+                        out.flush();
+                    }
+                } catch (Exception e) {
+                    System.err.println("Connection to server broken: " + e.toString());
+                }
+            }
+
+
         }
     }
 }

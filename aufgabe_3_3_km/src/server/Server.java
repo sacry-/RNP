@@ -81,6 +81,7 @@ class TCPServer extends Thread {
             sender.start();
 
             Server.getInstance().serverDispatcher.addClient(serverUser);
+            Server.getInstance().serverDispatcher.sendInfoToAllUsers();
         } catch (IOException e) {
             System.out.println(e);
         }

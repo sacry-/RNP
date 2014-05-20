@@ -28,6 +28,7 @@ public class ClientGUI {
     JButton sendMessage;
     JTextField messageBox;
     JTextArea chatBox;
+    JTextArea activeBox;
     JTextField usernameChooser;
     JFrame preFrame;
 
@@ -130,6 +131,13 @@ public class ClientGUI {
         chatBox.setFont(new Font("Serif", Font.PLAIN, 15));
         chatBox.setLineWrap(true);
 
+        JPanel eastPanel = new JPanel();
+        activeBox = new JTextArea();
+        activeBox.setEditable(false);
+        activeBox.setFont(new Font("Serif", Font.PLAIN, 15));
+        activeBox.setLineWrap(true);
+        eastPanel.add(activeBox);
+
         mainPanel.add(new JScrollPane(chatBox), BorderLayout.CENTER);
 
         GridBagConstraints left = new GridBagConstraints();
@@ -149,6 +157,7 @@ public class ClientGUI {
         southPanel.add(sendMessage, right);
 
         mainPanel.add(BorderLayout.SOUTH, southPanel);
+        mainPanel.add(BorderLayout.EAST, eastPanel);
 
         newFrame.add(mainPanel);
         newFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

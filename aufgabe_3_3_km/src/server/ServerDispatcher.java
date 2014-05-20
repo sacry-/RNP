@@ -22,7 +22,7 @@ public class ServerDispatcher extends Thread {
             activeServerUsers.removeElementAt(clientIndex);
     }
 
-    private synchronized void sendInfoToAllUsers() {
+    public synchronized void sendInfoToAllUsers() {
         for (int i = 0; i < activeServerUsers.size(); i++) {
             ServerUser serverUser = activeServerUsers.get(i);
             serverUser.sender.queueMessage(ServerProtocol.info(activeServerUsers));
@@ -31,12 +31,7 @@ public class ServerDispatcher extends Thread {
 
     public void run() {
         try {
-            Long timeStamp = System.currentTimeMillis();
             while (!interrupted()) {
-                while ((System.currentTimeMillis() - timeStamp) <= 5000L) {
-                }
-                timeStamp = System.currentTimeMillis();
-                sendInfoToAllUsers();
             }
         } catch (Exception e) {
         }

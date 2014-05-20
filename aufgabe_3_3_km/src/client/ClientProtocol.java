@@ -14,6 +14,7 @@ public class ClientProtocol {
 
     public static final String BYE = "BYE";
     public static final String LIST = "LIST";
+    public static final String INFO = "INFO";
     public static final String OK = "OK";
     public static final String ERROR = "ERROR";
 
