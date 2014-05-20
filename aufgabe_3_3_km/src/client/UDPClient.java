@@ -1,7 +1,5 @@
 package client;
 
-import server.ServerUser;
-
 import java.io.*;
 import java.net.*;
 

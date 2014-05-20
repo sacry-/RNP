@@ -20,7 +20,6 @@ public class TCPToServer extends Thread {
     private Receiver receiver;
     private NameHandler nameHandler;
     private ClientGUI gui;
-    private ClientUser clientUser;
 
     public TCPToServer(String host, int tcpPort, NameHandler nameHandler, ClientGUI gui) {
         this.host = host;
@@ -53,10 +52,6 @@ public class TCPToServer extends Thread {
         receiver.start();
 
         start();
-    }
-
-    public String getUserName() {
-        return clientUser.name;
     }
 
     @Override
@@ -144,9 +139,6 @@ public class TCPToServer extends Thread {
                     System.out.println(e);
                 }
             }
-            clientUser = new ClientUser(name, host, tcpPort);
         }
     }
-
 }
-

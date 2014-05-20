@@ -70,5 +70,4 @@ public class ClientProtocol {
         String[] tokens = word.trim().split(" ");
         return new ArrayList<String>(Arrays.asList(tokens));
     }
-
 }
