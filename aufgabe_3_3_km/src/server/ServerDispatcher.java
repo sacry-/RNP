@@ -1,11 +1,8 @@
 package server;
 
-import client.ClientUtil;
-
 import java.util.*;
 
 public class ServerDispatcher extends Thread {
-    private Vector messageQueue = new Vector();
     private Vector<ServerUser> activeServerUsers = new Vector();
 
     public synchronized void addClient(ServerUser serverUser) {
@@ -25,27 +22,10 @@ public class ServerDispatcher extends Thread {
             activeServerUsers.removeElementAt(clientIndex);
     }
 
-    public synchronized void queueMessage(ServerUser serverUser, String aMessage) {
-        aMessage = serverUser.name + ": " + aMessage;
-        messageQueue.add(aMessage);
-        notify();
-    }
-
-    private synchronized String dequeMessage()
-            throws InterruptedException {
-        while (messageQueue.size() == 0)
-            wait();
-        String message = (String) messageQueue.get(0);
-        messageQueue.removeElementAt(0);
-        return message;
-    }
-
     private synchronized void sendInfoToAllUsers() {
         for (int i = 0; i < activeServerUsers.size(); i++) {
             ServerUser serverUser = activeServerUsers.get(i);
-            ArrayList<ServerUser> users = new ArrayList<ServerUser>(activeServerUsers);
-            users.remove(serverUser);
-            serverUser.sender.setList(users);
+            serverUser.sender.queueMessage(ServerProtocol.info(activeServerUsers));
         }
     }
 
