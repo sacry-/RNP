@@ -30,8 +30,10 @@ public class ClientGUI {
     JTextArea chatBox;
     JTextField usernameChooser;
     JFrame preFrame;
+
     private MessageQueue messageQueue;
     private NameHandler nameHandler;
+    public volatile boolean isRunning = true;
 
     public ClientGUI(MessageQueue messageQueue, NameHandler nameHandler) {
         this.messageQueue = messageQueue;
@@ -50,7 +52,6 @@ public class ClientGUI {
         });
     }
 
-    public volatile boolean isRunning = true;
     private String username = null;
 
     private class enterServerButtonListener implements ActionListener {
@@ -75,11 +76,7 @@ public class ClientGUI {
 
     private class sendMessageButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
-            if (messageBox.getText().length() < 1) {
-            } else if (messageBox.getText().equals(".clear")) {
-                chatBox.setText("Cleared all messages\n");
-                messageBox.setText("");
-            } else {
+            if (messageBox.getText().length() > 1) {
                 String message = "<" + username + ">:  " + messageBox.getText() + "\n";
                 chatBox.append(message);
                 messageQueue.queueMessage(message);

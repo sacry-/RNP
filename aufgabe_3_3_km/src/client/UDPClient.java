@@ -10,6 +10,7 @@ import java.net.*;
  */
 public class UDPClient extends Thread {
 
+    public static final int PORT = 50001;
     private TCPToServer tcpServer;
     private MessageQueue messageQueue;
     private ClientGUI gui;

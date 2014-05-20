@@ -46,7 +46,6 @@ public class Listener extends Thread {
         stopNow();
     }
 
-
     private void stopNow() {
         serverUser.sender.interrupt();
         serverUser.listener.interrupt();

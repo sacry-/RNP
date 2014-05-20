@@ -58,7 +58,7 @@ public class TCPToServer extends Thread {
     public void run() {
         // while deamons alive, will be dead if main thread on socket is killed
         while (sender.isAlive() && receiver.isAlive()) {
-            if (!gui.isRunning) { // early callback
+            if (!gui.isRunning) { // callback
                 out.println(ClientProtocol.BYE);
                 out.flush();
                 break;

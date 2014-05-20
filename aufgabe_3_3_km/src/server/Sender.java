@@ -15,7 +15,7 @@ public class Sender extends Thread {
     public Sender(ServerUser serverUser, ServerDispatcher aServerDispatcher, PrintWriter out)
             throws IOException {
         this.serverUser = serverUser;
-        serverDispatcher = aServerDispatcher;
+        this.serverDispatcher = aServerDispatcher;
         this.out = out;
         this.infoUserTask = new SendInfoToUser();
     }
