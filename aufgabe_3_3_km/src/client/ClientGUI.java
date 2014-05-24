@@ -154,7 +154,7 @@ public class ClientGUI {
             public void windowClosing(WindowEvent winEvt) {
                 isRunning = false;
                 try {
-                    Thread.sleep(2000L);
+                    Thread.sleep(1000L);
                 } catch (InterruptedException e) {
                     System.out.println(e);
                 }

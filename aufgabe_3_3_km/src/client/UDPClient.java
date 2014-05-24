@@ -13,16 +13,13 @@ public class UDPClient extends Thread {
     private MessageQueue messageQueue;
     private ClientGUI gui;
 
-    private int udpPort;
-
     private Listener listener;
     private Sender sender;
 
-    public UDPClient(TCPToServer tcpServer, int udpPort, MessageQueue messageQueue, ClientGUI gui) {
+    public UDPClient(TCPToServer tcpServer, MessageQueue messageQueue, ClientGUI gui) {
         this.tcpServer = tcpServer;
         this.messageQueue = messageQueue;
         this.gui = gui;
-        this.udpPort = udpPort;
 
         sender = new Sender();
         sender.setDaemon(true);
@@ -55,6 +52,8 @@ public class UDPClient extends Thread {
             while (gui.isRunning) {
                 try {
                     String input = messageQueue.dequeMessage();
+                    if (!ClientProtocol.isBetween1and100Characters(input))
+                        continue;
                     if (input == null)
                         break;
                     sendToAll(input);
@@ -96,7 +95,7 @@ public class UDPClient extends Thread {
 
         public void run() {
             try {
-                DatagramSocket ds = new DatagramSocket(udpPort);
+                DatagramSocket ds = new DatagramSocket(PORT);
                 while (gui.isRunning) {
                     byte[] buffer = new byte[65507];
                     DatagramPacket dp = new DatagramPacket(buffer, buffer.length);

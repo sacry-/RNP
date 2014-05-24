@@ -36,24 +36,21 @@ public class ClientProtocol {
         return ERROR;
     }
 
+    public static boolean isBetween1and100Characters(String input) {
+        int size = tokenize(input).size();
+        return size > 0 && size <= 100;
+    }
+
     public static ArrayList<ClientUser> list(String list) {
         ArrayList<String> users = new ArrayList<String>(Arrays.asList(list.split(" ")));
         ArrayList<ClientUser> clientUsers = new ArrayList<ClientUser>();
         ListIterator<String> iterator = users.subList(2, users.size()).listIterator();
         while (iterator.hasNext()) {
-            String hostN = iterator.next();
-            Tuple2<String, Integer> t = hostName(hostN);
+            String hostName = iterator.next();
             String name = iterator.next();
-            clientUsers.add(new ClientUser(name, t._1(), t._2()));
+            clientUsers.add(new ClientUser(name, hostName));
         }
         return clientUsers;
-    }
-
-    private static Tuple2<String, Integer> hostName(String aSocket) {
-        String[] host_port = aSocket.split(":");
-        String host = host_port[0];
-        int port = Integer.parseInt(host_port[1]);
-        return Tuple2.valueOf(host, port);
     }
 
     private static ArrayList<String> tokenize(String word) {
