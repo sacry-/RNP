@@ -140,12 +140,21 @@ public class TCPToServer extends Thread {
         }
 
         private void guiName() {
-            String name = null;
-            while (!ClientProtocol.isNameValid(name)) {
+            String name;
+            while (true) {
                 try {
                     name = nameHandler.name.getName();
                     out.println("NEW " + name);
                     out.flush();
+                    String response = nameHandler.response.getResponse();
+                    if (response.equals(ClientProtocol.OK)) {
+                        gui.preFrame.setVisible(false);
+                        gui.display();
+                        break;
+                    } else {
+                        gui.usernameChooser.setText("");
+                        gui.usernameChooser.requestFocusInWindow();
+                    }
                 } catch (InterruptedException e) {
                     System.out.println(e);
                 }

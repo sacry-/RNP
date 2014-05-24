@@ -21,14 +21,6 @@ public class ClientProtocol {
     private ClientProtocol() {
     }
 
-    private static final Pattern VALID_NAME = Pattern.compile("[a-zA-Z0-9]{1,20}");
-
-    public static boolean isNameValid(String name) {
-        if (name != null)
-            return VALID_NAME.matcher(name).matches();
-        return false;
-    }
-
     public static String normalizeCommand(String command) {
         ArrayList<String> tokens = tokenize(command);
         String cmd = tokens.get(0);

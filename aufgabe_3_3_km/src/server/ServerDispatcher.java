@@ -9,9 +9,9 @@ public class ServerDispatcher extends Thread {
         activeServerUsers.add(serverUser);
     }
 
-    public synchronized boolean contains(ServerUser serverUser) {
+    public synchronized boolean contains(String name) {
         for (ServerUser u : activeServerUsers)
-            if (u.name.equals(serverUser.name))
+            if (u.name.equals(name))
                 return true;
         return false;
     }

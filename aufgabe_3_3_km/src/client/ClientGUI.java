@@ -29,8 +29,8 @@ public class ClientGUI {
     JTextField messageBox;
     JTextArea chatBox;
     JTextArea activeBox;
-    JTextField usernameChooser;
-    JFrame preFrame;
+    public JTextField usernameChooser;
+    public JFrame preFrame;
 
     private MessageQueue messageQueue;
     private NameHandler nameHandler;
@@ -59,19 +59,6 @@ public class ClientGUI {
         public void actionPerformed(ActionEvent event) {
             username = usernameChooser.getText();
             nameHandler.name.updateName(username);
-            String response = null;
-            try {
-                response = nameHandler.response.getResponse();
-            } catch (InterruptedException e) {
-                System.out.println(e);
-            }
-            if (response.equals(ClientProtocol.OK)) {
-                preFrame.setVisible(false);
-                display();
-            } else {
-                usernameChooser.setText("");
-                usernameChooser.requestFocusInWindow();
-            }
         }
     }
 
@@ -86,7 +73,7 @@ public class ClientGUI {
         }
     }
 
-    private void preDisplay() {
+    public void preDisplay() {
         newFrame.setVisible(false);
         preFrame = new JFrame(appName);
         usernameChooser = new JTextField(15);
@@ -112,7 +99,7 @@ public class ClientGUI {
         preFrame.setVisible(true);
     }
 
-    private void display() {
+    public void display() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
 

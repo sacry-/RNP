@@ -7,7 +7,7 @@ public class Server {
 
     public static final int PORT = 50000;
     public static ServerSocket serverSocket = null;
-    public static volatile ServerDispatcher serverDispatcher;
+    private volatile ServerDispatcher serverDispatcher;
 
     public static Server instance = null;
 
@@ -35,7 +35,7 @@ public class Server {
         while (true) {
             try {
                 Socket socket = serverSocket.accept();
-                new TCPServer(socket).start();
+                new TCPServer(socket, serverDispatcher).start();
             } catch (IOException e) {
                 System.out.println(e);
             }
@@ -55,9 +55,11 @@ class TCPServer extends Thread {
     private ServerUser serverUser = new ServerUser();
     private BufferedReader in;
     private PrintWriter out;
+    private ServerDispatcher serverDispatcher;
 
-    public TCPServer(Socket socket) {
+    public TCPServer(Socket socket, ServerDispatcher serverDispatcher) {
         this.socket = socket;
+        this.serverDispatcher = serverDispatcher;
         try {
             this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -70,8 +72,8 @@ class TCPServer extends Thread {
         serverUser.socket = this.socket;
 
         try {
-            listener = new Listener(serverUser, Server.getInstance().serverDispatcher, this.in);
-            sender = new Sender(serverUser, Server.getInstance().serverDispatcher, this.out);
+            listener = new Listener(serverUser, serverDispatcher, this.in);
+            sender = new Sender(serverUser, serverDispatcher, this.out);
             serverUser.listener = listener;
             serverUser.sender = sender;
 
@@ -80,8 +82,8 @@ class TCPServer extends Thread {
             listener.start();
             sender.start();
 
-            Server.getInstance().serverDispatcher.addClient(serverUser);
-            Server.getInstance().serverDispatcher.sendInfoToAllUsers();
+            serverDispatcher.addClient(serverUser);
+            serverDispatcher.sendInfoToAllUsers();
         } catch (IOException e) {
             System.out.println(e);
         }
@@ -91,7 +93,7 @@ class TCPServer extends Thread {
         try {
             String input = in.readLine();
             String name = ServerProtocol.newName(input);
-            while (!ServerProtocol.isNameValid(name)) {
+            while (!ServerProtocol.isNameValid(name) || serverDispatcher.contains(name)) {
                 out.println(ServerProtocol.error("invalid command or name. Hint: NEW <name>"));
                 out.flush();
                 input = in.readLine();
