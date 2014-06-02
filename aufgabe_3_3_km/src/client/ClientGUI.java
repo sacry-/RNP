@@ -1,25 +1,10 @@
 package client;
 
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
+import java.awt.*;
+import java.awt.event.*;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
+import javax.swing.*;
 
 public class ClientGUI {
 
@@ -63,13 +48,19 @@ public class ClientGUI {
     }
 
     private class sendMessageButtonListener implements ActionListener {
-        public void actionPerformed(ActionEvent event) {
+
+        private void messaging() {
             if (messageBox.getText().length() > 1) {
                 String message = "<" + username + ">:  " + messageBox.getText() + "\n";
                 messageQueue.queueMessage(message);
                 messageBox.setText("");
             }
             messageBox.requestFocusInWindow();
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            messaging();
         }
     }
 
@@ -146,6 +137,7 @@ public class ClientGUI {
         mainPanel.add(BorderLayout.SOUTH, southPanel);
         mainPanel.add(BorderLayout.EAST, eastPanel);
 
+        newFrame.setTitle(username);
         newFrame.add(mainPanel);
         newFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         newFrame.setSize(470, 300);

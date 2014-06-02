@@ -19,6 +19,7 @@ public class Listener extends Thread {
             while (!isInterrupted()) {
 
                 String message = in.readLine();
+                System.out.println(message);
                 if (message == null)
                     break;
 

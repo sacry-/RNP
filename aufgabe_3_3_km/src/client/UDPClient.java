@@ -71,7 +71,7 @@ public class UDPClient extends Thread {
                 try {
                     DatagramSocket theSocket = new DatagramSocket();
                     DatagramPacket theOutput = new DatagramPacket(data,
-                            data.length, InetAddress.getByName(user.host), user.port);
+                            data.length, InetAddress.getByName(user.host), PORT);
                     theSocket.send(theOutput);
                 } catch (Exception e) {
                     System.out.println("Error sending datagram " + e);

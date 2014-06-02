@@ -1,5 +1,7 @@
 package server;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.*;
 
 public class ServerDispatcher extends Thread {
@@ -26,6 +28,13 @@ public class ServerDispatcher extends Thread {
         for (int i = 0; i < activeServerUsers.size(); i++) {
             ServerUser serverUser = activeServerUsers.get(i);
             serverUser.sender.queueMessage(ServerProtocol.info(activeServerUsers));
+        }
+    }
+
+    public synchronized void quit() {
+        for (int i = 0; i < activeServerUsers.size(); i++) {
+            ServerUser serverUser = activeServerUsers.get(i);
+            serverUser.sender.queueMessage(ServerProtocol.BYE);
         }
     }
 
