@@ -1,0 +1,68 @@
+RNP 4
+-----
+Kai Brusch, Matthias Nitsche
+
+2. Firewalling
+
+	a. block acces to 172.16.1.0/24 from
+		2a.sh
+
+	b. allow input on port 51000 through tcp
+		2b.sh
+
+	c. accept all except TCP connections
+		2c.sh
+
+	d. allow ping from inside to outside
+		2d.sh
+
+
+3. Routing
+
+	text
+
+	* 3_isdn.sh
+	* 3_router.sh
+	- 3_capture_ws (missing)
+
+
+4. Sniffing & Firewalling
+
+	a. text
+
+		8 Handshake 1
+		9 Handshake 2
+		10 Handshake 3
+		29 "Hello" gesendet
+		30 ACK "Hello"
+		36 "World!" gesendet
+		37 ACK "World!"
+
+		4a_capture_ws (missing)
+
+	b. text
+
+		27 GET /
+		28 ACK from server
+		29 Moved Permanently to /vejr/
+		30 ACK to server
+		31 GET /vejr/
+
+		4b_capture_ws (missing)
+
+	c. text
+		4c.sh
+
+
+
+commands:
+
+sudo..
+iptables -t nat -L
+iptables -L
+-A append rule
+-I insert/replace rule
+-s select IP-ADDRESS
+-F collective delete
+
+

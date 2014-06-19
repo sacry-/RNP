@@ -1,0 +1,62 @@
+Chain INPUT (policy DROP)
+target     prot opt source               destination         
+ACCEPT     all  --  anywhere             anywhere            
+ACCEPT     all  --  anywhere             anywhere             ctstate ESTABLISHED
+ACCEPT     icmp --  anywhere             anywhere             ctstate RELATED
+ACCEPT     all  --  cpt.haw-hamburg.de/23  anywhere            
+ACCEPT     all  --  cpt.haw-hamburg.de/23  anywhere            
+DROP       tcp  --  anywhere             anywhere             tcp dpt:ssh
+ACCEPT     all  --  anywhere             anywhere             state ESTABLISHED
+ACCEPT     all  --  dns.is.haw-hamburg.de  anywhere            
+ACCEPT     all  --  dns2.is.haw-hamburg.de  anywhere            
+ACCEPT     all  --  dns3.is.haw-hamburg.de  anywhere            
+ACCEPT     all  --  192.168.0.0/16       anywhere            
+ACCEPT     all  --  172.16.1.0/24        anywhere            
+ACCEPT     all  --  anywhere             anywhere            
+input_ext  all  --  anywhere             anywhere            
+LOG        all  --  anywhere             anywhere             limit: avg 3/min burst 5 LOG level warning tcp-options ip-options prefix "SFW2-IN-ILL-TARGET "
+DROP       all  --  anywhere             anywhere            
+
+Chain FORWARD (policy DROP)
+target     prot opt source               destination         
+LOG        all  --  anywhere             anywhere             limit: avg 3/min burst 5 LOG level warning tcp-options ip-options prefix "SFW2-FWD-ILL-ROUTING "
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination         
+ACCEPT     all  --  anywhere             anywhere            
+ACCEPT     all  --  anywhere             cpt.haw-hamburg.de/23 
+ACCEPT     all  --  anywhere             cpt.haw-hamburg.de/23 
+ACCEPT     all  --  anywhere             anywhere             state ESTABLISHED
+ACCEPT     all  --  anywhere             dns.is.haw-hamburg.de 
+ACCEPT     all  --  anywhere             dns2.is.haw-hamburg.de 
+ACCEPT     all  --  anywhere             dns3.is.haw-hamburg.de 
+ACCEPT     all  --  anywhere             shelleleven.informatik.haw-hamburg.de 
+ACCEPT     all  --  anywhere             homefs.informatik.haw-hamburg.de 
+ACCEPT     all  --  anywhere             filesrv.informatik.haw-hamburg.de 
+ACCEPT     all  --  anywhere             ti-idm.informatik.haw-hamburg.de 
+ACCEPT     all  --  anywhere             192.168.0.0/16      
+ACCEPT     all  --  anywhere             172.16.1.0/24       
+ACCEPT     all  --  anywhere             anywhere            
+
+Chain forward_ext (0 references)
+target     prot opt source               destination         
+
+Chain input_ext (1 references)
+target     prot opt source               destination         
+DROP       all  --  anywhere             anywhere             PKTTYPE = broadcast
+ACCEPT     icmp --  anywhere             anywhere             icmp source-quench
+ACCEPT     icmp --  anywhere             anywhere             icmp echo-request
+LOG        tcp  --  anywhere             anywhere             limit: avg 3/min burst 5 tcp dpt:ssh flags:FIN,SYN,RST,ACK/SYN LOG level warning tcp-options ip-options prefix "SFW2-INext-ACC-TCP "
+ACCEPT     tcp  --  anywhere             anywhere             tcp dpt:ssh
+DROP       all  --  anywhere             anywhere             PKTTYPE = multicast
+DROP       all  --  anywhere             anywhere             PKTTYPE = broadcast
+LOG        tcp  --  anywhere             anywhere             limit: avg 3/min burst 5 tcp flags:FIN,SYN,RST,ACK/SYN LOG level warning tcp-options ip-options prefix "SFW2-INext-DROP-DEFLT "
+LOG        icmp --  anywhere             anywhere             limit: avg 3/min burst 5 LOG level warning tcp-options ip-options prefix "SFW2-INext-DROP-DEFLT "
+LOG        udp  --  anywhere             anywhere             limit: avg 3/min burst 5 ctstate NEW LOG level warning tcp-options ip-options prefix "SFW2-INext-DROP-DEFLT "
+DROP       all  --  anywhere             anywhere            
+
+Chain reject_func (0 references)
+target     prot opt source               destination         
+REJECT     tcp  --  anywhere             anywhere             reject-with tcp-reset
+REJECT     udp  --  anywhere             anywhere             reject-with icmp-port-unreachable
+REJECT     all  --  anywhere             anywhere             reject-with icmp-proto-unreachable
